@@ -1,0 +1,30 @@
+services:
+  api:
+    hostname: "backend_service"
+    environment:
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/jade"
+      ACTIX_PORT: ${ACTIX_PORT}
+      ACTIX_HOST: ${ACTIX_HOST}
+      SMTP_SERVER: ${SMTP_SERVER}
+      INSTANCE_URL: ${INSTANCE_URL}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "db"
+  db:
+    hostname: "db_service"
+    image: postgres:15.2-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
+    driver: local
