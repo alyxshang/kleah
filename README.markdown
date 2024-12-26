@@ -15,11 +15,11 @@ This repository contains the source code for ***Jade***. ***Jade*** is a small s
 - [ ] Add the admin users.
 - [ ] Add the possibility for adding themes.
 - [ ] Add the following features for admin userss
-      - [ ] Invite codes.
-      - [ ] Instance-specific emojis.
-      - [ ] Instance information with description.
-      - [ ] Instance information with Kleah version.
-      - [ ] Instance-specific rules.
+- [ ] Invite codes.
+ - [ ] Instance-specific emojis.
+ - [ ] Instance information with description.
+ - [ ] Instance information with Kleah version.
+ - [ ] Instance-specific rules.
 - [ ] Unit testing for whatever possible.
 - [ ] Adding Federation.
 - [x] Adding API routes for a frontend.
