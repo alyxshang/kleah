@@ -11,6 +11,15 @@ This repository contains the source code for ***Jade***. ***Jade*** is a small s
 ***THIS PROJECT IS STILL HEAVILY WORK IN PROGRESS.***
 
 - [ ] REST API documentation.
+- [ ] Change Moods to Charms (turn this into a micro-blogging platform)
+- [ ] Add the admin users.
+- [ ] Add the possibility for adding themes.
+- [ ] Add the following features for admin userss
+      - [ ] Invite codes.
+      - [ ] Instance-specific emojis.
+      - [ ] Instance information with description.
+      - [ ] Instance information with Kleah version.
+      - [ ] Instance-specific rules.
 - [ ] Unit testing for whatever possible.
 - [ ] Adding Federation.
 - [x] Adding API routes for a frontend.
@@ -29,5 +38,5 @@ This repository contains the source code for ***Jade***. ***Jade*** is a small s
 
 ## NOTE :scroll:
 
-- *Jade :japanese_castle: :rock:* by *Alyx Shang :black_heart:*.
+- *Kleah :swan: :black_heart:* by *Alyx Shang :black_heart:*.
 - Licensed under the [FSL v1](https://github.com/alyxshang/fair-software-license).
