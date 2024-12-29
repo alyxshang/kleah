@@ -10,33 +10,50 @@ This repository contains the source code for ***Kleah***. is  The backend is an 
 
 ***THIS PROJECT IS STILL HEAVILY WORK IN PROGRESS.***
 
-- [ ] REST API documentation.
-- [ ] Add a feature list.
-- [ ] Change Moods to Charms (turn this into a micro-blogging platform)
-- [ ] Add the admin users.
-- [ ] Add the possibility for adding themes.
-- [ ] Invite codes for admin users.
-- [ ] Instance-specific emojis for admin users.
-- [ ] Instance information with description for admin users.
-- [ ] Instance information with Kleah version for admin users.
-- [ ] Instance-specific rules for admin users.
-- [ ] Add a frontend.
-- [ ] Unit tests for a frontend.
-- [ ] Unit testing for whatever possible.
+## TO DO :gear:
+
+## Backend
+
+- [ ] REST API routes.
 - [ ] Adding Federation.
-- [x] Adding API routes for a frontend.
+- [ ] User file privacy.
+- [ ] REST API documentation.
+- [ ] Instance-specific reactions.
+- [ ] Unit testing for whatever possible.
+
+- [x] Add the admin users.
+- [x] Rust API documentation.
+- [x] Leanify the Docker image.
 - [x] Adding a follower system.
 - [x] User profile picture upload.
-- [x] Rust API documentation.
+- [x] Invite codes for admin users.
+- [x] Add a system for blocking users.
+- [x] Adding API routes for a frontend.
+- [x] Add a system for following users.
 - [x] Add E-Mail verification at signup.
-- [x] Leanify the Docker image.
+- [x] Add a system for liking user posts.
+- [x] Add the possibility for adding themes.
+- [x] Instance-specific rules for admin users.
+- [x] Instance information with description for admin users.
+- [x] Add the possibility for admins to update instance info.
+- [x] Instance information with Kleah version for admin users.
+- [x] Add the possibility for users to update their information.
+- [x] Change Moods to Charms (turn this into a micro-blogging platform)
 
-## DOCUMENTATION :book:
+## Frontend
 
-- [Getting Started](documentation/getting-started.markdown)
-- [REST API Routes](documentation/api.markdown)
-- [Rust APIs](documentation/rust-apis.markdown)
-- [Contributing](documentation/contributing.markdown)
+- [ ] Add a frontend.
+- [ ] Add a feature list.
+- [ ] Unit tests for a frontend.
+
+## THE TOME :book:
+
+- [Lore](tome/terminology.markdown)
+- [Terminology](tome/terminology.markdown)
+- [Getting Started](tome/getting-started.markdown)
+- [REST API Routes](tome/api.markdown)
+- [Rust APIs](tome/rust-apis.markdown)
+- [Contributing](tome/contributing.markdown)
 
 ## NOTE :scroll:
 

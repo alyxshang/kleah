@@ -9,7 +9,7 @@ services:
       INSTANCE_URL: ${INSTANCE_URL}
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./backend/Dockerfile
     ports:
       - "8080:8080"
     depends_on:

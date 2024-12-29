@@ -1,0 +1,24 @@
+[package]
+name = "jade"
+version = "0.1.0"
+edition = "2021"
+license-file = "LICENSE"
+authors = ["Alyx Shang"]
+description= "A small federated service for storing your current mood."
+homepage = "https://github.com/alyxshang/jade"
+repository = "https://github.com/alyxshang/jade"
+documentation = "https://github.com/alyxshang/jade"
+readme = "README.markdown"
+
+[dependencies]
+rand = "0.8.5"
+actix-web = "4"
+bcrypt = "0.16.0"
+chrono = "0.4.38"
+actix-cors = "0.7.0"
+actix-multipart = "0.7.2"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0.214", features = ["derive"] }
+cliply = { git = "https://github.com/alyxshang/cliply", tag = "v.0.1.0" }
+sqlx = { version = "0.8.2", features = ["runtime-tokio", "postgres", "macros"] }
+lettre = { version="0.11.11", features=["smtp-transport", "tokio1", "tokio1-native-tls", "native-tls"] }

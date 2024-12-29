@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM charms",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "charm_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "charm_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "file_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_reply",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "refers_to",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "reaction_ids",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "like_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "reaction_count",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "d8dd2a8f5d170b4d301a050f4bf4d6cd91b0e90ffe64a00e78108e7665d5bc8b"
+}
