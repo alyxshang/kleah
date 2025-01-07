@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE users SET email = $1 WHERE username = $2",
+  "query": "UPDATE users SET banner_url = $1 WHERE user_id = $2",
   "describe": {
     "columns": [],
     "parameters": {
@@ -11,5 +11,5 @@
     },
     "nullable": []
   },
-  "hash": "196869ca82a50b07623647d0fb544ac5bd022a7808b8c2d9a963a23ab540d655"
+  "hash": "38a0b48639579b357c94dcd968b20d34076c7b508341f03f1a8a40861a70e009"
 }

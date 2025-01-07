@@ -49,6 +49,7 @@ pub struct CreateUserPayload {
     pub user_description: String,
     pub email: String,
     pub pwd: String,
+    pub is_private: bool,
     pub email_token: String,
     pub is_active: bool,
     pub rules_accepted: bool,
@@ -61,7 +62,7 @@ pub struct CreateUserPayload {
 /// a user.
 #[derive(Deserialize)]
 pub struct DeleteUserPayload {
-    pub user_id: String,
+    pub username: String,
     pub api_token: String
 }
 
@@ -71,7 +72,7 @@ pub struct DeleteUserPayload {
 /// an API token.
 #[derive(Deserialize)]
 pub struct CreateUserTokenPayload {
-    pub user_id: String,
+    pub username: String,
     pub password: String,
     pub can_change_pwd: bool,
     pub can_change_username: bool,
@@ -98,7 +99,7 @@ pub struct DeleteUserTokenPayload {
 #[derive(Deserialize)]
 pub struct UserTokensPayload {
     pub password: String,
-    pub user_id: String,
+    pub username: String,
 }
 
 /// A structure containing
@@ -129,7 +130,8 @@ pub struct UserInteractionPayload {
 /// an invite code.
 #[derive(Deserialize)]
 pub struct CreateInviteCodePayload {
-    pub api_token: String
+    pub api_token: String,
+    pub invite_code: String
 }
 
 /// A structure containing
@@ -164,11 +166,20 @@ pub struct CharmLikePayload {
 }
 
 /// A structure for submitting a payload
+/// that creates a reaction by a user on a charm.
+#[derive(Deserialize)]
+pub struct CharmReactPayload {
+    pub api_token: String,
+    pub reaction_name: String,
+    pub charm_id: String,
+}
+
+/// A structure for submitting a payload
 /// that retrieves profile information for
 /// the owner of the token.
 #[derive(Deserialize)]
 pub struct ProfilePayload{
-    pub api_token: String
+    pub api_token: String,
 }
 
 /// A structure for submitting a payload
@@ -185,7 +196,6 @@ pub struct TimelinePayload{
 #[derive(Deserialize)]
 pub struct CharmDetailPayload{
     pub charm_id: String,
-    pub api_token: String
 }
 
 /// A structure for submitting a
@@ -223,4 +233,119 @@ pub struct LoginTokenPayload{
 #[derive(Deserialize)]
 pub struct DiscardLoginTokenPayload{
     pub api_token: String,
+}
+
+/// A structure for submitting a
+/// payload for updating the privacy
+/// perms on a user-uploaded file.
+#[derive(Deserialize)]
+pub struct UpdateFilePermsPayload{
+    pub api_token: String,
+    pub file_id: String,
+    pub is_private: bool,
+}
+
+/// A structure for submitting a
+/// payload for deleting a
+/// user-uploaded file.
+#[derive(Deserialize)]
+pub struct DeleteFilePayload {
+    pub api_token: String,
+    pub file_id: String,
+}
+
+/// A structure for submitting a
+/// payload for creating an 
+/// instance-specific reaction.
+#[derive(Deserialize)]
+pub struct CreateInstanceReactionPayload{
+    pub file_id: String,
+    pub api_token: String,
+    pub reaction_name: String,
+}
+
+/// A structure for submitting a
+/// payload for deleting an 
+/// instance-specific reaction.
+#[derive(Deserialize)]
+pub struct DeleteInstanceReactionPayload{
+    pub api_token: String,
+    pub reaction_name: String,
+}
+
+/// A structure for submitting a
+/// payload for proclaiming a
+/// user-created post.
+#[derive(Deserialize)]
+pub struct ProclamationPayload {
+    pub api_token: String,
+    pub charm_id: String
+}
+
+/// A structure for submitting a
+/// payload for gathering all charms
+/// a user has liked.
+#[derive(Deserialize)]
+pub struct LikedCharmsPayload {
+    pub api_token: String
+}
+
+/// A structure for submitting a
+/// payload for gathering all charms
+/// a user has reacted to.
+#[derive(Deserialize)]
+pub struct ReactedCharmsPayload {
+    pub api_token: String
+}
+
+/// A structure for submitting a
+/// payload for gathering all charms
+/// a user has proclaimed.
+#[derive(Deserialize)]
+pub struct ProclaimedCharmsPayload {
+    pub api_token: String
+}
+
+/// A structure for submitting a
+/// payload for verifying an invite
+/// code.
+#[derive(Deserialize)]
+pub struct CheckInvitePayload{
+    pub invite_code: String
+}
+
+/// A structure for submitting 
+/// a payload for retrieving
+/// information about a user
+/// profile while also
+/// respecting viewership rights.
+#[derive(Deserialize)]
+pub struct UserViewPayload{
+    pub api_token: String,
+    pub issuer: String
+}
+
+/// A structure for submitting 
+/// a payload for performing
+/// actions that only require
+/// an API token.
+#[derive(Deserialize)]
+pub struct APITokenOnlyPayload{
+    pub api_token: String,
+}
+
+/// A structure for submitting 
+/// a payload for banning a user.
+#[derive(Deserialize)]
+pub struct BanningPayload{
+    pub api_token: String,
+    pub target: String
+}
+
+/// A structure for submitting 
+/// a payload that only requires
+/// a username.
+#[derive(Deserialize)]
+pub struct PublicUserViewPayload{
+    pub username: String
 }

@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM user_proclamations",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "proclamation_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "charm_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "07ca01830fa2c72d380e6ea924794f08077b2ba966d11e49e55722f9e87cfbf1"
+}

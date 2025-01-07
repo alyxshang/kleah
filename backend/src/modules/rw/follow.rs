@@ -20,6 +20,11 @@ use bcrypt::hash;
 /// crate.
 use sqlx::Postgres;
 
+/// Importing the macro
+/// from the "sqlx" crate
+/// to execute SQL queries.
+use sqlx::query_as;
+
 /// Importing this crate's
 /// structure to catch and
 /// handle errors.
@@ -60,6 +65,11 @@ use crate::rw_utils::get_user_by_id;
 /// on operational success.
 use crate::responses::StatusResponse;
 
+/// Importing the structure for submitting
+/// a payload for understanding user
+/// relationships.
+use crate::payloads::UserViewPayload;
+
 /// Importing the payload for following
 /// or unfollowing a user.
 use crate::payloads::UserInteractionPayload;
@@ -89,7 +99,7 @@ pub async fn write_follow_user(
         Ok(token_obj) => token_obj,
         Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
     };
-    let user_to_follow: KleahUser = match get_user_by_id(&payload.sender_id, pool).await {
+    let user_to_follow: KleahUser = match get_user_by_id(&payload.receiver_id, pool).await {
         Ok(user_to_follow) => user_to_follow,
         Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
     };
@@ -145,4 +155,33 @@ pub async fn write_unfollow_user(
     };
     let status: StatusResponse = StatusResponse{ status: 0 };
     Ok(status)
+}
+
+/// Checks whether the owner of the submitting
+/// API token in the payload is a follower. If this
+/// is the case, a boolean "true" is returned. If it is
+/// not, a boolean "false" is returned.
+pub async fn user_is_following(
+    payload: &UserViewPayload,
+    pool: &Pool<Postgres>
+) -> Result<bool, KleahErr>{
+    let follows: Vec<KleahUserFollows> = match query_as!(KleahUserFollows, "SELECT * FROM user_follows")
+        .fetch_all(pool)
+        .await
+    {
+        Ok(blocks) => blocks,
+        Err(e) => return Err::<bool, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let asker: KleahUser = match get_user_from_token(&payload.api_token, pool).await {
+        Ok(asker) => asker,
+        Err(e) => return Err::<bool, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let mut result: bool = false;
+    for follow in follows {
+        if follow.follower == asker.user_id && follow.followee == payload.issuer{
+            result = true;
+        }
+        else {}
+    }
+    Ok(result)
 }

@@ -1,3 +1,0 @@
-# LORE
-
-***Coming soon.***

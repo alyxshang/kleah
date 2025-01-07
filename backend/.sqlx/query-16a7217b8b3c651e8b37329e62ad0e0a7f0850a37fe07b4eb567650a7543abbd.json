@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM user_themes WHERE theme_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "16a7217b8b3c651e8b37329e62ad0e0a7f0850a37fe07b4eb567650a7543abbd"
+}

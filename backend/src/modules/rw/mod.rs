@@ -20,6 +20,12 @@ pub mod user;
 pub mod block;
 
 /// Exporting the module
+/// handling the creation
+/// of an admin user on
+/// Kleah's startup.
+pub mod admin;
+
+/// Exporting the module
 /// handling reading
 /// and writing
 /// file uploads between
@@ -41,6 +47,14 @@ pub mod likes;
 /// to and from
 /// the database.
 pub mod charms;
+
+/// Exporting the module
+/// handling reading
+/// and writing information
+/// about the public
+/// viewability of a 
+/// profile.
+pub mod public;
 
 /// Exporting the module
 /// handling reading
@@ -68,6 +82,13 @@ pub mod update;
 
 /// Exporting the module
 /// handling reading
+/// and writing information
+/// about users viewing
+/// each other's profiles.
+pub mod foreign;
+
+/// Exporting the module
+/// handling reading
 /// and writing signin
 /// information
 /// to and from
@@ -91,10 +112,25 @@ pub mod invites;
 /// Exporting the module
 /// handling reading
 /// and writing different
-/// important infor
+/// important info
 /// to and from the 
 /// database.
 pub mod rw_utils;
+
+/// Exporting the module
+/// handling reading
+/// and writing different
+/// user-created reactions
+/// to and from the 
+/// database.
+pub mod reactions;
+
+/// Exporting the module
+/// handling reading
+/// and writing federated
+/// activities to and
+/// from the database.
+pub mod federation;
 
 /// Exporting the module
 /// handling reading
@@ -103,3 +139,10 @@ pub mod rw_utils;
 /// to and from
 /// the database.
 pub mod instance_info;
+
+/// Exporting the module
+/// handling reading
+/// and writing promotion
+/// activities for charms to and
+/// from the database.
+pub mod proclamations;

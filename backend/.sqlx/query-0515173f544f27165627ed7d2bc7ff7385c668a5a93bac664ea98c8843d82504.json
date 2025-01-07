@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM user_follows WHERE followee = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "relationship_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "follower",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "followee",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "0515173f544f27165627ed7d2bc7ff7385c668a5a93bac664ea98c8843d82504"
+}

@@ -11,11 +11,14 @@ documentation = "https://github.com/alyxshang/jade"
 readme = "README.markdown"
 
 [dependencies]
+rsa = "0.9.7"
+pem = "3.0.4"
 rand = "0.8.5"
 actix-web = "4"
 bcrypt = "0.16.0"
 chrono = "0.4.38"
 actix-cors = "0.7.0"
+serde_yml = "0.0.12"
 actix-multipart = "0.7.2"
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0.214", features = ["derive"] }

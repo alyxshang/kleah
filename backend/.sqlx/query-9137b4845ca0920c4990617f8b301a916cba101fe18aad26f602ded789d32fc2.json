@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO user_files (file_id, user_id, file_name, file_path) VALUES ($1, $2, $3, $4)",
+  "query": "INSERT INTO user_reactions (reaction_id, user_id, charm_id, file_id) VALUES ($1, $2, $3, $4)",
   "describe": {
     "columns": [],
     "parameters": {
@@ -13,5 +13,5 @@
     },
     "nullable": []
   },
-  "hash": "a701d7878210ff11829c32ce59606ec758c46bdb2cdee96a8c44b0fcf62d24a8"
+  "hash": "9137b4845ca0920c4990617f8b301a916cba101fe18aad26f602ded789d32fc2"
 }

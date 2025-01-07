@@ -17,7 +17,7 @@ To get Jade up and running, please follow these steps:
     - `POSTGRES_PASSWORD`: The password for your PostgreSQL database.
     - `API_DOMAIN`: The domain from which your JAde's API will be running.
     - `SMTP_SERVER`: The address for SMTP services from a mail provider of your choice.
-    - ``
+    - `INSTANCE_DOMAIN`: This is the domain of your Kleah instance.
 - 4.) Start the containers with the command: `docker compose up -d`.
 
 ## Running unit tests

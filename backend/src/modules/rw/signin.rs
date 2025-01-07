@@ -11,37 +11,57 @@ use sqlx::Pool;
 /// crate.
 use sqlx::Postgres;
 
+/// Importing the macro
+/// from the "sqlx" crate
+/// to execute SQL queries.
 use sqlx::query;
-
-use crate::models::APIToken;
-use crate::models::KleahUser;
-use crate::payloads::CreateUserTokenPayload;
-use crate::responses::StatusResponse;
-use crate::tokens::create_new_token;
-use crate::tokens::wipe_token;
-use crate::payloads::LoginTokenPayload;
-use crate::payloads::DiscardLoginTokenPayload;
 
 /// Importing this crate's
 /// structure to catch and
 /// handle errors.
 use crate::KleahErr;
 
-use super::rw_utils::get_user_by_id;
-use super::rw_utils::get_user_by_handle;
-use super::rw_utils::get_user_from_token;
+/// Importing the "APIToken"
+/// structure to work with API
+/// tokens and explicitly declare
+/// them.
+use crate::models::APIToken;
 
+/// Importing the function to create
+/// a new API token in the database.
+use crate::tokens::create_new_token;
+
+/// Importing the "StatusResponse"
+/// structure to return information
+/// on operational success.
+use crate::responses::StatusResponse;
+
+/// Importing the structure to submit
+/// a new payload for logging a user
+/// into a Kleah instance.
+use crate::payloads::LoginTokenPayload;
+
+/// Importing the structure to submit a new
+/// payload for creating a new API token.
+use crate::payloads::CreateUserTokenPayload;
+
+/// Importing the structure to submit
+/// a new payload for logging a user
+/// out of a Kleah instance.
+use crate::payloads::DiscardLoginTokenPayload;
+
+
+/// Attempts to create a new API token
+/// for logging in an performaing actions
+/// when the user logs in to their Kleah 
+/// interface.
 pub async fn login_user_from_db(
     payload: &LoginTokenPayload,
     pool: &Pool<Postgres>
 ) -> Result<APIToken, KleahErr> {
-    let user: KleahUser = match get_user_by_handle(payload.username, pool).await {
-        Ok(user) => user,
-        Err(e) => return Err::<APIToken, KleahErr>(KleahErr::new(&e.to_string()))
-    };
     let token_payload: CreateUserTokenPayload = CreateUserTokenPayload {
-        user_id: user.user_id,
-        password: payload.password,
+        username: payload.username.clone(),
+        password: payload.password.clone(),
         can_change_pwd: true,
         can_change_username: true,
         can_post_charms: true,
@@ -55,17 +75,21 @@ pub async fn login_user_from_db(
     Ok(created)
 }
 
+/// Attempts to wipe the API token used
+/// for logging in an performaing actions
+/// when the user logs out of their Kleah 
+/// interface.
 pub async fn logout_user_from_db(
     payload: &DiscardLoginTokenPayload,
     pool: &Pool<Postgres>
 ) -> Result<StatusResponse, KleahErr> {
     let _wipe_op: () = match query!("DELETE FROM api_tokens WHERE token = $1", payload.api_token)
-            .execute(pool)
-            .await
-        {
-            Ok(_feedback) => {},
-            Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
-        };
-        let status: StatusResponse = StatusResponse{ status: 0 };
-        Ok(status)
+        .execute(pool)
+        .await
+    {
+        Ok(_feedback) => {},
+        Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let status: StatusResponse = StatusResponse{ status: 0 };
+    Ok(status)
 }

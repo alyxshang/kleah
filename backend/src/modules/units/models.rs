@@ -31,6 +31,10 @@ pub struct KleahUser {
     pub user_description: String,
     pub email: String,
     pub pwd: String,
+    pub host: String,
+    pub priv_key: String,
+    pub pub_key: String,
+    pub is_private: bool,
     pub email_token: String,
     pub is_active: bool,
     pub rules_accepted: bool,
@@ -49,6 +53,7 @@ pub struct Charm {
     pub is_reply: bool,
     pub refers_to: Option<String>,
     pub reaction_ids: Option<String>,
+    pub proclamation_count: Option<i32>,
     pub like_count: Option<i32>,
     pub reaction_count: Option<i32>,
 }
@@ -60,7 +65,8 @@ pub struct KleahUserFile {
     pub file_id: String,
     pub user_id: String,
     pub file_name: String,
-    pub file_path: String
+    pub file_path: String,
+    pub is_private: bool
 }
 
 
@@ -117,6 +123,16 @@ pub struct InviteCode {
     pub invite_code: String
 }
 
+/// This structure models a reaction
+/// issued by a user on a Kleah charm.
+#[derive(Deserialize, Serialize, FromRow, Clone)]
+pub struct UserReaction {
+    pub reaction_id: String,
+    pub user_id: String,
+    pub charm_id: String,
+    pub file_id: String,
+}
+
 /// This structure models a like reaction
 /// issued by a user on a Kleah charm.
 #[derive(Deserialize, Serialize, FromRow, Clone)]
@@ -136,4 +152,24 @@ pub struct UserTheme {
     pub theme_name: String,
     pub primary_color: String,
     pub accent_color: String
+}
+
+/// A structure for modelling an
+/// instance-specific reaction. This reaction
+/// can only be created and deleted by the
+/// instance administrator.
+#[derive(Deserialize, Serialize, FromRow, Clone)]
+pub struct InstanceReaction {
+    pub reaction_name: String,
+    pub file_id: String,
+    pub user_id: String
+}
+
+/// A structure for modelling an
+/// a user promoting a charm.
+#[derive(Deserialize, Serialize, FromRow, Clone)]
+pub struct Proclamation {
+    pub proclamation_id: String,
+    pub user_id: String,
+    pub charm_id: String
 }

@@ -41,13 +41,35 @@ use std::path::Path;
 use std::path::PathBuf;
 
 /// Importing the "create_dir"
-/// structure to create directories.
+/// function to create directories
+/// to store user-uploaded files
+/// in.
 use std::fs::create_dir;
+
+/// Importing the "remove_file"
+/// function to delete 
+/// user-uploaded files.
+use std::fs::remove_file;
 
 /// Importing the "Postgres"
 /// structure from the "sqlx"
 /// crate.
 use sqlx::postgres::Postgres;
+
+/// Attempts to delete a file on
+/// disk. Retruns a boolean "true"
+/// if successful. If the operation
+/// fails, an error is returned.
+pub async fn delete_file(
+    file_path: &String,
+) -> Result<bool, KleahErr> {
+    let result: bool;
+    let _del_op: () = match remove_file(Path::new(file_path)){
+        Ok(_del_op) => result = true,
+        Err(e) => return Err::<bool, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    Ok(result)
+}
 
 /// Saves a file that users upload in the
 /// specified directory. If this operation

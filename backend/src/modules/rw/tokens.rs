@@ -61,6 +61,10 @@ use crate::models::APIToken;
 /// them.
 use crate::models::KleahUser;
 
+/// Importing a function to generate
+/// a random string.
+use crate::utils::generate_chars;
+
 /// Importing the "StatusResponse"
 /// structure to return information
 /// on operational success.
@@ -73,6 +77,11 @@ use crate::rw_utils::get_user_by_id;
 /// Importing the structure to obtain
 /// all active tokens a user created.
 use crate::payloads::UserTokensPayload;
+
+/// Importing the function to retrieve
+/// a user's profile information given
+/// their handle.
+use super::rw_utils::get_user_by_handle;
 
 /// Importing the structure to delete
 /// a token a user created.
@@ -90,7 +99,7 @@ pub async fn create_new_token(
     payload: &CreateUserTokenPayload,
     pool: &Pool<Postgres>
 ) -> Result<APIToken, KleahErr> {
-    let user: KleahUser = match get_user_by_id(&payload.user_id, pool).await {
+    let user: KleahUser = match get_user_by_handle(&payload.username, pool).await {
         Ok(user) => user,
         Err(e) => return Err::<APIToken, KleahErr>(KleahErr::new(&e.to_string()))
     };
@@ -99,12 +108,12 @@ pub async fn create_new_token(
         Err(e) => return Err::<APIToken, KleahErr>(KleahErr::new(&e.to_string()))
     };
     if is_valid {
-        let hashed: String = match hash(format!("{}:{}", get_time(), &payload.user_id), DEFAULT_COST){
+        let hashed: String = match hash(format!("{}:{}:{}", get_time(), &payload.username, generate_chars(16)), DEFAULT_COST){
             Ok(hashed) => hashed,
             Err(e) => return Err::<APIToken, KleahErr>(KleahErr::new(&e.to_string()))
         };
         let new_token: APIToken = APIToken{
-            user_id: payload.user_id.clone(),
+            user_id: user.user_id.clone(),
             token: hashed,
             created_at: get_time(),
             is_active: true,
@@ -119,11 +128,9 @@ pub async fn create_new_token(
             new_token.user_id,
             new_token.token,
             new_token.created_at,
-
             new_token.is_active,
             new_token.can_change_username,
             new_token.can_change_pwd,
-
             new_token.can_post_charms,
             new_token.can_delete_user,
             new_token.can_change_email
@@ -138,7 +145,7 @@ pub async fn create_new_token(
 
     }
     else {
-        let e: String = format!("Passwords did not match for user \"{}\"!", &payload.user_id);
+        let e: String = format!("Passwords did not match for user \"{}\"!", &payload.username);
         Err::<APIToken, KleahErr>(KleahErr::new(&e.to_string()))
     }
 }
@@ -153,7 +160,7 @@ pub async fn wipe_token(
     payload: &DeleteUserTokenPayload,
     pool: &Pool<Postgres>
 ) -> Result<StatusResponse, KleahErr> {
-    let user: KleahUser = match get_user_by_id(&payload.user_id, pool).await {
+    let user: KleahUser = match get_user_by_handle(&payload.user_id, pool).await {
         Ok(user) => user,
         Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
     };
@@ -186,7 +193,7 @@ pub async fn get_user_tokens(
     payload: &UserTokensPayload,
     pool: &Pool<Postgres>
 ) -> Result<Vec<APIToken>, KleahErr>{
-    let user: KleahUser = match get_user_by_id(&payload.user_id, pool).await {
+    let user: KleahUser = match get_user_by_id(&payload.username, pool).await {
         Ok(user) => user,
         Err(e) => return Err::<Vec<APIToken>, KleahErr>(KleahErr::new(&e.to_string()))
     };

@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM instance_reactions",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "reaction_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "file_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e673d224c6714c3bb07749631a37f6e52c707703b70fb90c9ac6836183a003bf"
+}

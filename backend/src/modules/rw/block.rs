@@ -20,6 +20,11 @@ use bcrypt::hash;
 /// crate.
 use sqlx::Postgres;
 
+/// Importing the macro
+/// from the "sqlx" crate
+/// to execute SQL queries.
+use sqlx::query_as;
+
 /// Importing this crate's
 /// structure to catch and
 /// handle errors.
@@ -60,6 +65,11 @@ use crate::rw_utils::get_user_by_id;
 /// on operational success.
 use crate::responses::StatusResponse;
 
+/// Importing the structure for submitting
+/// a payload for understanding user
+/// relationships.
+use crate::payloads::UserViewPayload;
+
 /// Importing the payload for following
 /// or unfollowing a user.
 use crate::payloads::UserInteractionPayload;
@@ -89,7 +99,7 @@ pub async fn write_block_user(
         Ok(token_obj) => token_obj,
         Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
     };
-    let user_to_block: KleahUser = match get_user_by_id(&payload.sender_id, pool).await {
+    let user_to_block: KleahUser = match get_user_by_id(&payload.receiver_id, pool).await {
         Ok(user_to_block) => user_to_block,
         Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
     };
@@ -105,9 +115,9 @@ pub async fn write_block_user(
         };
         let _insert_op = match sqlx::query!(
             "INSERT INTO user_blocks (blocker, blockee, block_id) VALUES ($1, $2, $3)",
-            block_rel.follower,
-            block_rel.followee,
-            block_rel.relationship_id
+            block_rel.blocker,
+            block_rel.blockee,
+            block_rel.block_id
         )
             .execute(pool)
             .await
@@ -115,7 +125,7 @@ pub async fn write_block_user(
             Ok(_feedback) => {},
             Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
         };
-        Ok(StatusResponse{ status: 0})
+        Ok(StatusResponse{ status: 0 })
     }
     else {
         let e: String = "Token does not have the correct permissions or users do not exist.".to_string();
@@ -145,4 +155,33 @@ pub async fn write_unblock_user(
     };
     let status: StatusResponse = StatusResponse{ status: 0 };
     Ok(status)
+}
+
+/// Checks whether the owner of the submitting
+/// API token in the payload has been blocked. If this
+/// is the case, a boolean "true" is returned. If it is
+/// not, a boolean "false" is returned.
+pub async fn user_is_blocked(
+    payload: &UserViewPayload,
+    pool: &Pool<Postgres>
+) -> Result<bool, KleahErr>{
+    let blocks: Vec<KleahUserBlocks> = match query_as!(KleahUserBlocks, "SELECT * FROM user_blocks")
+        .fetch_all(pool)
+        .await
+    {
+        Ok(blocks) => blocks,
+        Err(e) => return Err::<bool, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let asker: KleahUser = match get_user_from_token(&payload.api_token, pool).await {
+        Ok(user_who_is_blocking) => user_who_is_blocking,
+        Err(e) => return Err::<bool, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let mut result: bool = false;
+    for block in blocks {
+        if block.blockee == asker.user_id && block.blocker == payload.issuer {
+            result = true;
+        }
+        else {}
+    }
+    Ok(result)
 }

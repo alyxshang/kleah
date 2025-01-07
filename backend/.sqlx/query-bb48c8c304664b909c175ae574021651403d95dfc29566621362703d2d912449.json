@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM user_themes WHERE theme_owner = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "theme_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "theme_owner",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "theme_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "primary_color",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "accent_color",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "bb48c8c304664b909c175ae574021651403d95dfc29566621362703d2d912449"
+}

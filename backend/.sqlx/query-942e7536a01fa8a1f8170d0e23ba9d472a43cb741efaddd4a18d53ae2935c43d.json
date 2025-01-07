@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE instance_information SET instance_name = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "942e7536a01fa8a1f8170d0e23ba9d472a43cb741efaddd4a18d53ae2935c43d"
+}

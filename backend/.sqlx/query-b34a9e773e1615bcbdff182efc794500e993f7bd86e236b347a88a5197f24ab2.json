@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM user_blocks",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "block_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "blocker",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "blockee",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b34a9e773e1615bcbdff182efc794500e993f7bd86e236b347a88a5197f24ab2"
+}

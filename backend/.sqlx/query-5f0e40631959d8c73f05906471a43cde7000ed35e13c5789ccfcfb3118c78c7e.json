@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE charms SET like_count = $1 WHERE charm_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5f0e40631959d8c73f05906471a43cde7000ed35e13c5789ccfcfb3118c78c7e"
+}

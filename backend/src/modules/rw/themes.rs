@@ -31,6 +31,31 @@ use sqlx::query_as;
 /// crate.
 use sqlx::Postgres;
 
+/// Importing this crate's
+/// structure to catch and
+/// handle errors.
+use crate::KleahErr;
+
+/// Importing the "get_time"
+/// function to get the current
+/// time stamp.
+use crate::time::get_time;
+
+/// Importing the structure
+/// that models a user-created
+/// theme.
+use crate::models::UserTheme;
+
+/// Importing the "KleahUser"
+/// structure to work with users
+/// and explicitly declare
+/// them.
+use crate::models::KleahUser;
+
+/// Importing the "StatusResponse"
+/// structure to return information
+/// on operational success.
+use crate::responses::StatusResponse;
 
 /// Importing the structure to
 /// submit a payload for saving
@@ -42,13 +67,16 @@ use crate::payloads::CreateThemePayload;
 /// a user-generated theme.
 use crate::payloads::DeleteThemePayload;
 
-use crate::responses::StatusResponse;
-use crate::time::get_time;
-use crate::KleahErr;
-use crate::models::UserTheme;
-use crate::models::KleahUser;
+/// Importing the function to retrieve a 
+/// user by a token associated with them.
 use crate::rw_utils::get_user_from_token;
 
+/// This function will attempt
+/// to write the theme for the user
+/// who created it. If successful,
+/// an instance of the "UserTheme"
+/// model is returned. If this operation
+/// fails, an error is returned.
 pub async fn write_theme(
     payload: &CreateThemePayload,
     pool: &Pool<Postgres>
@@ -65,9 +93,9 @@ pub async fn write_theme(
     let new_theme: UserTheme = UserTheme{
         theme_id: hashed,
         theme_owner: user.user_id,
-        theme_name: payload.theme_name,
-        primary_color: payload.primary_color,
-        accent_color: payload.accent_color
+        theme_name: payload.theme_name.clone(),
+        primary_color: payload.primary_color.clone(),
+        accent_color: payload.accent_color.clone()
     };
     let _insert_op = match sqlx::query!(
         "INSERT INTO user_themes (theme_id, theme_owner, theme_name, primary_color, accent_color) VALUES ($1, $2, $3, $4, $5)",
@@ -86,6 +114,13 @@ pub async fn write_theme(
     Ok(new_theme)
 }
 
+/// This function will attempt
+/// to wipe a theme for the user
+/// who created it. If successful,
+/// an instance of the "Statusresponse"
+/// structure is returned with the status
+/// code of 0. If this operation
+/// fails, an error is returned.
 pub async fn wipe_theme(
     payload: &DeleteThemePayload,
     pool: &Pool<Postgres>
@@ -99,14 +134,14 @@ pub async fn wipe_theme(
         .await
     {
         Ok(users) => users,
-        Err(e) => return Err::<UserTimeline, KleahErr>(KleahErr::new(&e.to_string()))
+        Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
     };
     let _wipe_op: () = match query!("DELETE FROM user_themes WHERE theme_id = $1", user_theme.theme_id)
-            .execute(pool)
-            .await
-        {
-            Ok(_feedback) => {},
-            Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
-        };
+        .execute(pool)
+        .await
+    {
+        Ok(_feedback) => {},
+        Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
+    };
     Ok(StatusResponse{status:0})
 }

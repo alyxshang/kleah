@@ -45,11 +45,16 @@
       },
       {
         "ordinal": 8,
-        "name": "like_count",
+        "name": "proclamation_count",
         "type_info": "Int4"
       },
       {
         "ordinal": 9,
+        "name": "like_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
         "name": "reaction_count",
         "type_info": "Int4"
       }
@@ -65,6 +70,7 @@
       false,
       false,
       false,
+      true,
       true,
       true,
       true

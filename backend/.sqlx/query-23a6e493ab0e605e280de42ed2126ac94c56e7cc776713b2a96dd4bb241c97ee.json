@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM user_proclamations WHERE proclamation_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "23a6e493ab0e605e280de42ed2126ac94c56e7cc776713b2a96dd4bb241c97ee"
+}

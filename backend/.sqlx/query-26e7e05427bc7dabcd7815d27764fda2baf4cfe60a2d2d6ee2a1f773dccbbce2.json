@@ -30,31 +30,61 @@
       },
       {
         "ordinal": 5,
-        "name": "email",
+        "name": "banner_url",
         "type_info": "Text"
       },
       {
         "ordinal": 6,
-        "name": "pwd",
+        "name": "user_description",
         "type_info": "Text"
       },
       {
         "ordinal": 7,
-        "name": "email_token",
+        "name": "email",
         "type_info": "Text"
       },
       {
         "ordinal": 8,
+        "name": "pwd",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "host",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "priv_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "pub_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "is_private",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "email_token",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
         "name": "is_active",
         "type_info": "Bool"
       },
       {
-        "ordinal": 9,
+        "ordinal": 15,
         "name": "rules_accepted",
         "type_info": "Bool"
       },
       {
-        "ordinal": 10,
+        "ordinal": 16,
         "name": "is_admin",
         "type_info": "Bool"
       }
@@ -63,6 +93,12 @@
       "Left": []
     },
     "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
       false,
       false,
       false,

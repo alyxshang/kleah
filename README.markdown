@@ -15,12 +15,17 @@ This repository contains the source code for ***Kleah***. is  The backend is an 
 ## Backend
 
 - [ ] REST API routes.
-- [ ] Adding Federation.
-- [ ] User file privacy.
 - [ ] REST API documentation.
+- [ ] Federation: User inbox.
+- [ ] Federation: User outbox.
+- [ ] Boosting of user charms.
+- [ ] Federation: User main key.
 - [ ] Instance-specific reactions.
 - [ ] Unit testing for whatever possible.
+- [ ] Federation: Implementing activities.
+- [ ] Federation: Implementing activities to also be mindful of other data.
 
+- [x] User file privacy.
 - [x] Add the admin users.
 - [x] Rust API documentation.
 - [x] Leanify the Docker image.
@@ -39,6 +44,12 @@ This repository contains the source code for ***Kleah***. is  The backend is an 
 - [x] Instance information with Kleah version for admin users.
 - [x] Add the possibility for users to update their information.
 - [x] Change Moods to Charms (turn this into a micro-blogging platform)
+- [x] Added views for all possible types of views.
+- [x] Added the possibility for admins to create reactions.
+- [x] Added the possibility for users to like posts.
+- [x] Added the possibility for users to react to posts.
+- [x] Added the possibility for admins to ban users.
+- [x] Added the possibility for admins to view users on their platform.
 
 ## Frontend
 
@@ -48,7 +59,6 @@ This repository contains the source code for ***Kleah***. is  The backend is an 
 
 ## THE TOME :book:
 
-- [Lore](tome/terminology.markdown)
 - [Terminology](tome/terminology.markdown)
 - [Getting Started](tome/getting-started.markdown)
 - [REST API Routes](tome/api.markdown)

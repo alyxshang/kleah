@@ -36,14 +36,20 @@ use crate::models::KleahUser;
 /// creating invite codes.
 use crate::models::InviteCode;
 
-/// Importing the function to generate
-/// a sequence of random characters.
-use crate::utils::generate_chars;
-
 /// Importing the "StatusResponse"
 /// structure to return information
 /// on operational success.
 use crate::responses::StatusResponse;
+
+/// Importing the structure for submitting
+/// a payload for checking an invite code's
+/// validity.
+use crate::payloads::CheckInvitePayload;
+
+/// Importing the function to check whether
+/// an invite code exists in the database 
+/// and is valid.
+use super::rw_utils::verify_invite_code;
 
 /// Importing the function to retrieve a 
 /// user by a token associated with them.
@@ -66,16 +72,15 @@ use crate::payloads::DeleteInviteCodePayload;
 /// operation fails, an error will be returned.
 pub async fn create_invite_code(
     payload: &CreateInviteCodePayload,
-    pool: Pool<Postgres>
+    pool: &Pool<Postgres>
 ) -> Result<InviteCode, KleahErr> {
-    let invite_code: String = generate_chars(12);
     let user: KleahUser = match get_user_from_token(&payload.api_token, &pool).await {
         Ok(user) => user,
         Err(e) => return Err::<InviteCode, KleahErr>(KleahErr::new(&e.to_string()))
     };
     if user.is_admin && user.is_active{
         let new_invite: InviteCode = InviteCode{
-            invite_code: invite_code,
+            invite_code: payload.invite_code.clone(),
             user_id: user.user_id
         };
         let _insert_op = match query!(
@@ -117,4 +122,25 @@ pub async fn wipe_invite_code(
     };
     let status: StatusResponse = StatusResponse{ status: 0 };
     Ok(status)
+}
+
+/// Attempts to verify an invite code.
+/// If it is valid, an instance of the "StatusResponse"
+/// structure is returned with an exit code of 0. If the code
+/// is not valid, the same is returned but with an exit code of 1.
+/// If anything else fails, an error is returned.
+pub async fn check_invite(
+    payload: &CheckInvitePayload,
+    pool: &Pool<Postgres>
+) -> Result<StatusResponse, KleahErr>{
+    let verif: bool = match verify_invite_code(&payload.invite_code, pool).await {
+        Ok(verif) => verif,
+        Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    if verif {
+        Ok(StatusResponse{status: 0})
+    }
+    else {
+        Ok(StatusResponse{status: 1})
+    }
 }

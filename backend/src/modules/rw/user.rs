@@ -20,12 +20,16 @@ use sqlx::query;
 /// to hash strings.
 use bcrypt::hash;
 
+/// Importing the macro
+/// from the "sqlx" crate
+/// to execute SQL queries.
+use sqlx::query_as;
+
 /// Importing the "Postgres"
 /// structure from the "sqlx"
 /// crate.
 use sqlx::Postgres;
 
-use crate::models::KleahUserFollows;
 /// Importing this crate's
 /// structure to catch and
 /// handle errors.
@@ -44,12 +48,26 @@ use crate::time::get_time;
 /// structure to work with charms
 /// and explicitly declare
 /// them.
+use crate::models::Charm;
+
+use crate::keys::KeyPair;
+
+use crate::keys::generate_key_pair;
+
+/// Importing the "KleahUser"
+/// structure to work with users
+/// and explicitly declare
+/// them.
 use crate::models::KleahUser;
 
 /// Importing the function
 /// to send an email to confirm
 /// a user's email address.
 use crate::email::send_email;
+
+/// Importing the function to check
+/// whether an admin user already exists.
+use crate::admin::admin_exists;
 
 /// Importing the structure that
 /// returns a user profile.
@@ -63,6 +81,11 @@ use crate::rw_utils::get_user_by_id;
 /// one to submit a payload for retrieving
 /// profile information about a user.
 use crate::payloads::ProfilePayload;
+
+/// Importing the structure that
+/// models a follow relationship
+/// between two users.
+use crate::models::KleahUserFollows;
 
 /// Importing the "StatusResponse"
 /// structure to return information
@@ -81,6 +104,7 @@ use crate::payloads::CreateUserPayload;
 /// user by a token associated with them.
 use crate::rw_utils::get_user_from_token;
 
+use super::rw_utils::get_instance_hostname;
 
 /// Attempts to create a new user with the given payload.
 /// If this operation succeeds, an instance of the "KleahUser" structure is
@@ -93,6 +117,10 @@ pub async fn write_user(
 ) -> Result<KleahUser, KleahErr> {
     let hashed_pwd = match hash(payload.pwd.clone(), DEFAULT_COST){
         Ok(hashed) => hashed,
+        Err(e) => return Err::<KleahUser, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let key_pair: KeyPair = match generate_key_pair(){
+        Ok(key_pair) => key_pair,
         Err(e) => return Err::<KleahUser, KleahErr>(KleahErr::new(&e.to_string()))
     };
     let user_id_string: String = format!("{}:{}", &payload.username, get_time());
@@ -108,17 +136,34 @@ pub async fn write_user(
         Ok(hashed) => hashed,
         Err(e) => return Err::<KleahUser, KleahErr>(KleahErr::new(&e.to_string()))
     };
+    let admin_exists: bool = match admin_exists(pool).await {
+        Ok(admin_exists) => admin_exists,
+        Err(e) => return Err::<KleahUser, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let user_already_exists: bool = match user_exists(&payload.username, pool).await {
+        Ok(user_exists) => user_exists,
+        Err(e) => return Err::<KleahUser, KleahErr>(KleahErr::new(&e.to_string()))
+    };
     let user_role: String;
-    if payload.user_role == "admin".to_string(){
-        user_role = "tianquan".to_string();
-    }
-    else if payload.user_role == "normal".to_string(){
+    if payload.user_role == "normal".to_string(){
         user_role = "Mage".to_string();
+    }
+    else if payload.user_role == "admin".to_string() && admin_exists == false {
+        user_role = "Tianquan".to_string();
     }
     else {
         let e: &str = "Invalid role supplied.";
         return Err::<KleahUser, KleahErr>(KleahErr::new(&e.to_string()));
     }
+    if user_already_exists{
+        let e: String = format!("The user \"{}\" already exists.", &payload.username);
+        return Err::<KleahUser, KleahErr>(KleahErr::new(&e.to_string()));
+    }
+    else {}
+    let host: String = match get_instance_hostname(pool).await {
+        Ok(host) => host,
+        Err(e) => return Err::<KleahUser, KleahErr>(KleahErr::new(&e.to_string()))
+    };
     let new_user: KleahUser = KleahUser{
         user_id: user_id.clone(),
         user_role: user_role,
@@ -129,25 +174,33 @@ pub async fn write_user(
         user_description: payload.user_description.clone(),
         email: hashed_email,
         pwd: hashed_pwd,
+        host: host,
+        priv_key: key_pair.private_key,
+        pub_key: key_pair.public_key,
+        is_private: payload.is_private,
         email_token: hashed_email_token.clone(),
         is_active: false,
         rules_accepted: payload.rules_accepted,
         is_admin: payload.is_admin
     };
+
     let _insert_op = match query!(
-        "INSERT INTO users (user_id, user_role, username, display_name, avatar_url, email, pwd, email_token, is_active, rules_accepted, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+        "INSERT INTO users (user_id, user_role, username, display_name, avatar_url, banner_url, user_description, email, pwd, host, priv_key, pub_key, is_private, email_token, is_active, rules_accepted, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
         new_user.user_id,
         new_user.user_role,
         new_user.username,
-
         new_user.display_name,
         new_user.avatar_url,
+        new_user.banner_url,
+        new_user.user_description,
         new_user.email,
-
         new_user.pwd,
+        new_user.host,
+        new_user.priv_key,
+        new_user.pub_key,
+        new_user.is_private,
         new_user.email_token,
         new_user.is_active,
-
         new_user.rules_accepted,
         new_user.is_admin
     )
@@ -192,8 +245,8 @@ pub async fn wipe_user(
         Ok(user) => user,
         Err(e) => return Err::<StatusResponse, KleahErr>(KleahErr::new(&e.to_string()))
     };
-    if user.user_id == payload.user_id {
-        let _wipe_op: () = match query!("DELETE FROM users WHERE user_id = $1", payload.user_id)
+    if user.username == payload.username {
+        let _wipe_op: () = match query!("DELETE FROM users WHERE user_id = $1", user.user_id)
             .execute(pool)
             .await
         {
@@ -230,7 +283,7 @@ pub async fn assemble_profile(
             Err(e) => return Err::<UserProfile, KleahErr>(KleahErr::new(&e.to_string()))
         };
         let charm_count: usize = user_charms.len();
-        let following_users: Vec<KleahUserFollows> = match query_as!(Charm, "SELECT * FROM user_follows WHERE follower = $1", user.user_id)
+        let following_users: Vec<KleahUserFollows> = match query_as!(KleahUserFollows, "SELECT * FROM user_follows WHERE follower = $1", user.user_id)
             .fetch_all(pool)
             .await
         {
@@ -263,4 +316,24 @@ pub async fn assemble_profile(
         let e: String = format!("User \"{}\" needs to be verified to have a public profile.", &user.username);
         Err::<UserProfile, KleahErr>(KleahErr::new(&e.to_string()))
     }
+}
+
+/// Attempts to check whether a user exists.
+/// If they do, a boolean "true" is returned. If they do
+/// not a boolean "false" is returned. If any other failures 
+/// occur, an error is returned.
+pub async fn user_exists(username: &String,pool: &Pool<Postgres>) -> Result<bool, KleahErr> {
+    let mut result: bool = false;
+    let all_users: Vec<KleahUser> = match query_as!(KleahUser, "SELECT * FROM users")
+        .fetch_all(pool)
+        .await
+    {
+        Ok(all_users) => all_users,
+        Err(e) => return Err::<bool, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    for user in all_users {
+        if &user.username == username{ result = true; }
+        else {}
+    }
+    Ok(result)
 }

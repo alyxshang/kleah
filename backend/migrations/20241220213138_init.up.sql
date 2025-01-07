@@ -9,9 +9,13 @@ CREATE TABLE users (
     display_name TEXT NOT NULL,
     avatar_url TEXT NOT NULL,
     banner_url TEXT NOT NULL,
-    user_bio TEXT NOT NULL,
+    user_description TEXT NOT NULL,
     email TEXT NOT NULL,
     pwd TEXT NOT NULL,
+    host TEXT NOT NULL,
+    priv_key TEXT NOT NULL,
+    pub_key TEXT NOT NULL,
+    is_private BOOLEAN NOT NULL,
     email_token TEXT NOT NULL,
     is_active BOOLEAN NOT NULL,
     rules_accepted BOOLEAN NOT NULL,
@@ -28,6 +32,7 @@ CREATE TABLE charms (
     is_reply BOOLEAN NOT NULL,
     refers_to TEXT NOT NULL,
     reaction_ids TEXT NULL,
+    proclamation_count INT,
     like_count INT,
     reaction_count INT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
@@ -105,6 +110,26 @@ CREATE TABLE user_likes (
     FOREIGN KEY (charm_id) REFERENCES charms(charm_id) ON DELETE CASCADE
 );
 
+-- The table for saving charms
+-- a user has liked.
+CREATE TABLE user_reactions (
+    reaction_id TEXT NOT NULL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    charm_id TEXT NOT NULL,
+    file_id TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (charm_id) REFERENCES charms(charm_id) ON DELETE CASCADE
+);
+
+-- The table for saving charms
+-- a user has promoted.
+CREATE TABLE user_proclamations (
+    proclamation_id TEXT NOT NULL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    charm_id TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 -- The table for saving themes
 -- a user has created.
 CREATE TABLE user_themes (
@@ -113,16 +138,14 @@ CREATE TABLE user_themes (
     theme_name TEXT NOT NULL,
     primary_color TEXT NOT NULL,
     accent_color TEXT NOT NULL,
-    FOREIGN KEY (theme_owner) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (theme_owner) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- The table for instance-specific
 -- reactions.
 CREATE TABLE instance_reactions (
-    file_id TEXT NOT NULL PRIMARY KEY,
-    file_owner TEXT NOT NULL,
-    theme_name TEXT NOT NULL,
-    primary_color TEXT NOT NULL,
-    accent_color TEXT NOT NULL,
-    FOREIGN KEY (theme_owner) REFERENCES users(user_id) ON DELETE CASCADE,
+    reaction_name TEXT NOT NULL PRIMARY KEY,
+    file_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
