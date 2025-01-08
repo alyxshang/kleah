@@ -24,7 +24,10 @@ use sqlx::Postgres;
 /// a follower relationship between two
 /// Kleah users.
 use crate::models::KleahUserFollows;
-
+use crate::responses::SubscriptionLink;
+use crate::utils::get_webfinger_info_from_other_instance;
+use crate::responses::WebFingerInfo;
+use crate::responses::WebFingerLink;
 use crate::responses::UserKeyActor;
 use crate::responses::ActorFollows;
 use crate::responses::UserIcon;
@@ -213,3 +216,66 @@ pub async fn user_public_key(
     todo!("Implement this.")    
 }
 
+// URL: /.well-known/webfinger?resource=acct:username@host
+// Method: GET
+pub async fn get_webfinger_info(
+    username: &String, 
+    host: &String,
+    pool: &Pool<Postgres>
+) -> Result<WebFingerInfo, KleahErr>{
+    let current_hostname: String = match get_instance_hostname(pool).await {
+        Ok(current_hostname) => current_hostname,
+        Err(e) => return Err::<WebFingerInfo, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    if host == &current_hostname {
+        let subject: String = format!("acct:{}@{}", username, host);
+        let mut aliases: Vec<String> = Vec::new();
+        aliases.push(format!("https://{}/@{}", host, username));
+        aliases.push(format!("https://{}/users/{}", host, username));
+        let profile_page: WebFingerLink = WebFingerLink{
+            rel: "http://webfinger.net/rel/profile-page".to_string(),
+            link_type: "text/html".to_string(),
+            href: format!("https://{}/@{}", host, username)
+        };
+        let activity_page: WebFingerLink = WebFingerLink{
+            rel: "self".to_string(),
+            link_type: "application/activity+json".to_string(),
+            href: format!("https://{}/users|{}", host, username)
+        };
+        let user: KleahUser = match get_user_by_handle(username, pool).await {
+            Ok(user) => user,
+            Err(e) => return Err::<WebFingerInfo, KleahErr>(KleahErr::new(&e.to_string()))
+        };
+        let pfp_url: String = format!("https://{}/{}", &current_hostname, user.avatar_url);
+        let content_type: String;
+        if pfp_url.ends_with("jpg"){ content_type = "jpeg".to_string() }
+        else { content_type = "png".to_string() }
+        let pfp_page: WebFingerLink = WebFingerLink{
+            rel: "http://webfinger.net/rel/avatar".to_string(),
+            link_type: format!("image/{}", content_type),
+            href: pfp_url
+        };
+        let subscribe_page: SubscriptionLink = SubscriptionLink{
+            rel: "http://ostatus.org/schema/1.0/subscribe".to_string(),
+            template: format!("https://{}/authorize-follow?acct={{uri}}", &current_hostname),
+        };
+        let mut pages: Vec<WebFingerLink> = Vec::new();  
+        pages.push(profile_page);
+        pages.push(activity_page);
+        pages.push(pfp_page);
+        //pages.push(subscribe_page);
+        let webfinger_info: WebFingerInfo = WebFingerInfo{
+            subject: subject,
+            aliases: aliases,
+            links: pages
+        };
+        Ok(webfinger_info)
+    }
+    else {
+        let webfinger_info: WebFingerInfo = match get_webfinger_info_from_other_instance(host, username).await{
+            Ok(webfinger_info) => webfinger_info,
+            Err(e) => return Err::<WebFingerInfo, KleahErr>(KleahErr::new(&e.to_string()))
+        };
+        Ok(webfinger_info)
+    }
+}

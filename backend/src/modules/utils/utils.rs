@@ -9,6 +9,14 @@ Licensed under the FSL v1.
 /// crate.
 use rand::Rng;
 
+use reqwest::Client;
+
+use serde_json::from_str;
+
+use reqwest::header::ACCEPT;
+
+use reqwest::header::CONTENT_TYPE;
+
 /// Importing the
 /// "Pool" structure
 /// from the "sqlx" crate
@@ -25,6 +33,7 @@ use std::fs::File;
 /// writing to a file.
 use std::io::Write;
 
+use crate::responses::WebFingerInfo;
 /// Importing this crate's
 /// error structure.
 use crate::KleahErr;
@@ -133,4 +142,30 @@ pub fn generate_chars(length: usize) -> String {
     }
     let result: String = result_chars.into_iter().collect();
     result
+}
+
+pub async fn get_webfinger_info_from_other_instance(
+    host: &String, 
+    username: &String
+) -> Result<WebFingerInfo, KleahErr> {
+    let client: Client = Client::new();
+    let url: String = format!("https://{}/.well-known/webfinger?resource=acct:{}@{}", host, username, host);
+    let response = match client.get(url)
+        .header(CONTENT_TYPE, "application/json")
+        .header(ACCEPT, "application/activity+json")
+        .send()
+        .await
+    {
+        Ok(response) => response,
+        Err(e) => return Err::<WebFingerInfo, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let resp_text: String = match response.text().await {
+        Ok(resp_text) => resp_text,
+        Err(e) => return Err::<WebFingerInfo, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    let result: WebFingerInfo = match from_str(resp_text){
+        Ok(result) => result,
+        Err(e) => return Err::<WebFingerInfo, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    Ok(result)
 }

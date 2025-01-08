@@ -9,6 +9,12 @@ Licensed under the FSL v1.
 /// as JSON.
 use serde::Serialize;
 
+/// Importing the "Serialize"
+/// trait to derive it and 
+/// serialize Rust structures
+/// as JSON.
+use serde::Deserialize;
+
 /// Importing the structure
 /// that models a user-created file.
 use crate::models::KleahUserFile;
@@ -65,29 +71,6 @@ pub struct CharmDetail {
 
 pub struct UserFilesTimeline {
     pub files: Vec<KleahUserFile>
-}
-
-/// A data structure that
-/// returns all relevant
-/// information on a user's
-/// Kleah account for Webfinger.
-#[derive(Serialize)]
-pub struct WebfingerResponse {
-    pub subject: String,
-    pub links: Vec<WebfingerLink>
-}
-
-/// A data structure that
-/// returns all relevant
-/// information on a webfinger
-/// link for a Kleah user's
-/// Webfinger info.
-#[derive(Serialize)]
-pub struct WebfingerLink{
-    pub rel: String,
-    #[serde(rename(serialize = "type"))]
-	pub link_type: String,
-	pub href: String,
 }
 
 /// A data structure that
@@ -279,5 +262,162 @@ pub struct UserAccountPublicKey{
       "mediaType":"image/png",
       "url":"https://files.mastodon.social/accounts/headers/113/737/404/937/317/251/original/c9813ff99fbf68b8.png"
    }
+}
+*/
+
+#[derive(Deserialize, Serialize)]
+pub struct WebFingerInfo {
+   pub subject: String,
+   pub aliases: Vec<String>,
+   pub links: Vec<WebFingerLink>
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct WebFingerLink{
+   pub rel: String,
+   #[serde(rename(serialize = "type", deserialize = "type"))]
+   pub link_type: String,
+   pub href: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct SubscriptionLink{
+   pub rel: String,
+   pub template: String
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct UserOutBox{
+   #[serde(rename(serialize = "@context", deserialize = "@context"))]
+   pub context: String,
+   pub id: String,
+   #[serde(rename(serialize = "type", deserialize = "type"))]
+   pub item_type: String,
+   #[serde(rename(serialize = "totalItems", deserialize = "totalItems"))]
+   pub total_tems: usize,
+   pub first: String,
+   pub last: String
+}
+
+pub enum ActivityType{
+   Create,
+   Like,
+   Follow,
+}
+
+pub struct Activity {
+   pub id: String,
+   pub activity_type: ActivityType,
+   pub actor: String,
+   pub published: String,
+   pub to: Vec<String>,
+   pub cc: Vec<String>,
+   pub object: ActivityObject
+}
+
+pub struct ActivityObject{
+   pub id: String,
+   pub object_type: ObjectType,
+   pub summary: String,
+   pub in_reply_to: String,
+   pub published: String,
+   pub url: String,
+   pub attributed_to: String,
+   pub to: Vec<String>,
+   pub cc: Vec<String>,
+   pub sensitive: bool,
+   pub atom_uri: String,
+   pub in_reply_to_atom_uri: String,
+   pub conversation: String,
+   pub content: String,
+   pub content_map: HashMap<String,String>,
+   pub updated: String,
+   pub attachment: Vec<String>,
+   pub tag: Vec<ActivityTag>,
+}
+
+pub struct ActivityTag{
+   pub tag_type: String,
+   pub href: String,
+   pub name: String
+}
+
+/*
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    {
+      "ostatus": "http://ostatus.org#",
+      "atomUri": "ostatus:atomUri",
+      "inReplyToAtomUri": "ostatus:inReplyToAtomUri",
+      "conversation": "ostatus:conversation",
+      "sensitive": "as:sensitive",
+      "toot": "http://joinmastodon.org/ns#",
+      "votersCount": "toot:votersCount",
+      "Hashtag": "as:Hashtag"
+    }
+  ],
+  "id": "https://mastodon.social/users/alyxshang/statuses/113794432570425493/activity",
+  "type": "Create",
+  "actor": "https://mastodon.social/users/alyxshang",
+  "published": "2025-01-08T19:40:43Z",
+  "to": [
+    "https://www.w3.org/ns/activitystreams#Public"
+  ],
+  "cc": [
+    "https://mastodon.social/users/alyxshang/followers"
+  ],
+  "object": {
+    "id": "https://mastodon.social/users/alyxshang/statuses/113794432570425493",
+    "type": "Note",
+    "summary": null,
+    "inReplyTo": null,
+    "published": "2025-01-08T19:40:43Z",
+    "url": "https://mastodon.social/@alyxshang/113794432570425493",
+    "attributedTo": "https://mastodon.social/users/alyxshang",
+    "to": [
+      "https://www.w3.org/ns/activitystreams#Public"
+    ],
+    "cc": [
+      "https://mastodon.social/users/alyxshang/followers"
+    ],
+    "sensitive": false,
+    "atomUri": "https://mastodon.social/users/alyxshang/statuses/113794432570425493",
+    "inReplyToAtomUri": null,
+    "conversation": "tag:mastodon.social,2025-01-08:objectId=889725520:objectType=Conversation",
+    "content": "\u003Cp\u003EActivityPub schemas are a mess. \u003Ca href=\"https://mastodon.social/tags/activitypub\" class=\"mention hashtag\" rel=\"tag\"\u003E#\u003Cspan\u003Eactivitypub\u003C/span\u003E\u003C/a\u003E Whoever dreamt them up definitely used Javascript.\u003C/p\u003E",
+    "contentMap": {
+      "en": "\u003Cp\u003EActivityPub schemas are a mess. \u003Ca href=\"https://mastodon.social/tags/activitypub\" class=\"mention hashtag\" rel=\"tag\"\u003E#\u003Cspan\u003Eactivitypub\u003C/span\u003E\u003C/a\u003E Whoever dreamt them up definitely used Javascript.\u003C/p\u003E"
+    },
+    "updated": "2025-01-08T19:41:25Z",
+    "attachment": [],
+    "tag": [
+      {
+        "type": "Hashtag",
+        "href": "https://mastodon.social/tags/activitypub",
+        "name": "#activitypub"
+      }
+    ],
+    "replies": {
+      "id": "https://mastodon.social/users/alyxshang/statuses/113794432570425493/replies",
+      "type": "Collection",
+      "first": {
+        "type": "CollectionPage",
+        "next": "https://mastodon.social/users/alyxshang/statuses/113794432570425493/replies?only_other_accounts=true&page=true",
+        "partOf": "https://mastodon.social/users/alyxshang/statuses/113794432570425493/replies",
+        "items": []
+      }
+    },
+    "likes": {
+      "id": "https://mastodon.social/users/alyxshang/statuses/113794432570425493/likes",
+      "type": "Collection",
+      "totalItems": 0
+    },
+    "shares": {
+      "id": "https://mastodon.social/users/alyxshang/statuses/113794432570425493/shares",
+      "type": "Collection",
+      "totalItems": 0
+    }
+  }
 }
 */
