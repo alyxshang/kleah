@@ -163,7 +163,7 @@ pub async fn get_webfinger_info_from_other_instance(
         Ok(resp_text) => resp_text,
         Err(e) => return Err::<WebFingerInfo, KleahErr>(KleahErr::new(&e.to_string()))
     };
-    let result: WebFingerInfo = match from_str(resp_text){
+    let result: WebFingerInfo = match from_str(&resp_text){
         Ok(result) => result,
         Err(e) => return Err::<WebFingerInfo, KleahErr>(KleahErr::new(&e.to_string()))
     };

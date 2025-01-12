@@ -28,19 +28,14 @@ use crate::responses::SubscriptionLink;
 use crate::utils::get_webfinger_info_from_other_instance;
 use crate::responses::WebFingerInfo;
 use crate::responses::WebFingerLink;
-use crate::responses::UserKeyActor;
 use crate::responses::ActorFollows;
-use crate::responses::UserIcon;
+use crate::responses::ActorImage;
+
+use crate::responses::Actor;
 /// Importing this crate's
 /// structure to catch and
 /// handle errors.
 use crate::KleahErr;
-
-/// Importing the structure
-/// that will serve as a response
-/// for creating an actor
-/// from a user for ActivityPub.
-use crate::responses::Actor;
 
 /// Importing the "Charm"
 /// structure to work with charms
@@ -207,15 +202,6 @@ pub async fn gather_actor_followers(
     Ok(actor_followers)
 }
 
-// URL: /users/{username}#main-key
-// Crate: https://crates.io/crates/pgp
-pub async fn user_public_key(
-    username: &String, 
-    pool: &Pool<Postgres>
-) -> Result<String, KleahErr> {
-    todo!("Implement this.")    
-}
-
 // URL: /.well-known/webfinger?resource=acct:username@host
 // Method: GET
 pub async fn get_webfinger_info(
@@ -278,4 +264,15 @@ pub async fn get_webfinger_info(
         };
         Ok(webfinger_info)
     }
+}
+
+pub async fn get_public_user_key_object(
+    username: &String,
+    pool: &Pool<Postgres>
+) -> Result<Actor, KleahErr> {
+    let actor_info: Actor = match gather_actor_info(username, pool).await {
+        Ok(actor_info) => actor_info,
+        Err(e) => return Err::<Actor, KleahErr>(KleahErr::new(&e.to_string()))
+    };
+    Ok(actor_info)
 }
