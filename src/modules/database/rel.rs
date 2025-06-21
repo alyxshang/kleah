@@ -80,16 +80,16 @@ pub async fn create_block(
     let rel_id: String = hash_string_sha(
         &format!("{}{}", follower_id, followee_id)
     );
-    let follower: ActorBlock = ActorBlock{
+    let blocker: ActorBlock = ActorBlock{
         rel_id: rel_id,
         actor_id: followee_id,
         blocked_actor: follower_id        
     };
     let insert_op: () = match query!(
         "INSERT INTO actor_blocks (rel_id, actor_id, follower_id) VALUES ($1, $2, $3)",
-        follower.rel_id,
-        follower.actor_id,
-        follower.follower_id
+        blocker.rel_id,
+        blocker.actor_id,
+        blocker.follower_id
 
     )
         .execute(pool)
@@ -101,4 +101,44 @@ pub async fn create_block(
         )
     }; 
     Ok(inser_op)
+}
+
+pub async fn delete_actor_follower(
+    rel_id: &str,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let del_op: () = match query!(
+        "DELETE FROM actor_followers WHERE rel_id = $1", 
+        rel_id
+    )
+        .execute(pool)
+        .await 
+    {
+        Ok(_feedback) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(del_op)
+
+}
+
+pub async fn delete_actor_block(
+    rel_id: &str,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let del_op: () = match query!(
+        "DELETE FROM actor_blocks WHERE rel_id = $1", 
+        rel_id
+    )
+        .execute(pool)
+        .await 
+    {
+        Ok(_feedback) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(del_op)
+
 }
