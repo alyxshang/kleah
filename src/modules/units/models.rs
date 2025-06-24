@@ -11,7 +11,7 @@ use sqlx::FromRow;
 
 /// A model for storing
 /// invite codes.
-#[derive(FromRow)]
+#[derive(FromRow)] // done.
 pub struct InviteCode{
     pub code_id: String,
     pub code: String,
@@ -21,7 +21,7 @@ pub struct InviteCode{
 /// A model for storing
 /// information about 
 /// the Kleah instance.
-#[derive(FromRow)]
+#[derive(FromRow)] // done.
 pub struct InstanceInfo{
     pub info_id: String,
     pub instance_host: String,
@@ -32,7 +32,7 @@ pub struct InstanceInfo{
 
 /// A model for storing
 /// a user's API tokens.
-#[derive(FromRow)]
+#[derive(FromRow)] // done.
 pub struct UserAPIToken{
     pub token: String,
     pub user_id: String
@@ -41,7 +41,7 @@ pub struct UserAPIToken{
 /// A model for storing
 /// a relationship
 /// of a block.
-#[derive(FromRow)]
+#[derive(FromRow)] // done.
 pub struct ActorBlock{
     pub rel_id: String,
     pub actor_id: String,
@@ -100,7 +100,7 @@ pub struct Activity{
 /// A model for storing
 /// a info about a file
 /// owned by an actor.
-#[derive(FromRow)]
+#[derive(FromRow)] // done.
 pub struct ActorFile{
     pub media_id: String,
     pub user_id: String,
@@ -111,7 +111,7 @@ pub struct ActorFile{
 /// A model for storing
 /// confidential info
 /// of an actor.
-#[derive(FromRow)]
+#[derive(FromRow)] // done.
 pub struct PrivateActor{
     pub username: string,
     pub user_id: String,
@@ -125,7 +125,7 @@ pub struct PrivateActor{
 
 /// A model for storing
 /// a following relationship.
-#[derive(FromRow)]
+#[derive(FromRow)] // done.
 pub struct ActorFollower{
     pub rel_id: String,
     pub actor_id: String,
@@ -147,7 +147,7 @@ pub struct ActorLink{
 /// A model for storing
 /// info pertaining to
 /// an actor.
-#[derive(FromRow)]
+#[derive(FromRow)] // done.
 pub struct Actor{
     pub user_id: String,
     pub host: String,
