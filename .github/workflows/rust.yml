@@ -11,4 +11,5 @@ jobs:
       - name: "Running unit tests."
         uses: actions-rs/cargo@v1
         with:
-          command: test --manifest-path ./kleah-backend/Cargo.toml
+          command: test
+          args: --manifest-path ./kleah-backend/Cargo.toml
