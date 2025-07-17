@@ -1,0 +1,9 @@
+# General.
+.DS_Store
+
+# Backend.
+/kleah-backend/target/
+/kleah-backend/Cargo.lock
+
+# Frontend.
+_fresh/
