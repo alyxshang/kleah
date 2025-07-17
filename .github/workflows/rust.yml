@@ -1,8 +1,5 @@
 on: [push]
-env:
-  SENTINEL_PORT: "8000"
-  SENTINEL_HOST: "127.0.0.1"
-name: Sentinel CI
+name: Kleah CI
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
@@ -14,4 +11,4 @@ jobs:
       - name: "Running unit tests."
         uses: actions-rs/cargo@v1
         with:
-          command: test kleah-backend
+          command: test --manifest-path ./kleah-backend/Cargo.toml
