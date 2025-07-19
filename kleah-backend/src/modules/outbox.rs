@@ -1,4 +1,5 @@
 use reqwest::Client;
+use serde::Serialize;
 use reqwest::Response;
 use serde_json::Value;
 use serde::Deserialize;
@@ -6,23 +7,23 @@ use super::err::KleahErr;
 use serde_json::from_str;
 use std::collections::HashMap;
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, PartialEq, Debug, Serialize)]
 pub struct WebFingerLink {
     pub rel: String,
-    #[serde(rename(deserialize = "type"))]
+    #[serde(rename(deserialize = "type", serialize = "type"))]
     pub content_type: Option<String>,
     pub href: Option<String>,
     pub template: Option<String>
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, PartialEq, Debug, Serialize)]
 pub struct WebFingerResponse {
     pub subject: String,
     pub aliases: Vec<String>,
     pub links: Vec<WebFingerLink>
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, PartialEq, Debug, Serialize)]
 pub struct ActorWebFingerInfo{
     #[serde(rename(deserialize = "@context"))]
     pub context: Option<Value>,
@@ -56,7 +57,7 @@ pub struct ActorWebFingerInfo{
     pub image: ActorImage
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, PartialEq, Debug, Serialize)]
 pub struct ActorImage {
     #[serde(rename(deserialize = "type"))]
     pub image_type: String,
@@ -65,7 +66,7 @@ pub struct ActorImage {
     pub url: String,
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, PartialEq, Debug, Serialize)]
 pub struct ActorPublicKey {
     pub id: String,
     pub owner: String,
@@ -73,7 +74,7 @@ pub struct ActorPublicKey {
     pub public_key_pem: String
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, PartialEq, Debug, Serialize)]
 pub struct ActorAttachment {
     #[serde(rename(deserialize = "type"))]
     pub prop_type: String,
@@ -81,7 +82,7 @@ pub struct ActorAttachment {
     pub value: String
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, PartialEq, Debug, Serialize)]
 pub struct ActorOutBoxInfo {
     #[serde(rename(deserialize = "@context"))]
     pub context: String,

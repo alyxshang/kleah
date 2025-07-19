@@ -1,11 +1,11 @@
 use super::utils::parse_query;
-use super::foreign::WebFingerLink;
-use super::foreign::get_stream_url;
-use super::foreign::WebFingerResponse;
-use super::foreign::get_actor_info_url;
-use super::foreign::get_actor_inbox_url;
-use super::foreign::get_actor_apub_info;
-use super::foreign::get_actor_outbox_url;
+use super::outbox::WebFingerLink;
+use super::outbox::get_stream_url;
+use super::outbox::WebFingerResponse;
+use super::outbox::get_actor_info_url;
+use super::outbox::get_actor_inbox_url;
+use super::outbox::get_actor_apub_info;
+use super::outbox::get_actor_outbox_url;
 
 #[tokio::test]
 pub async fn test_apub_stream(){
@@ -154,3 +154,5 @@ pub fn test_url_parser(){
     };
 
 }*/
+
+

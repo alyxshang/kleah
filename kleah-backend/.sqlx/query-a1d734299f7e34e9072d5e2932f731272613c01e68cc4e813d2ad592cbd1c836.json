@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM private_actors WHERE username = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "verified",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "privileged",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "private_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "public_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "user_password",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a1d734299f7e34e9072d5e2932f731272613c01e68cc4e813d2ad592cbd1c836"
+}

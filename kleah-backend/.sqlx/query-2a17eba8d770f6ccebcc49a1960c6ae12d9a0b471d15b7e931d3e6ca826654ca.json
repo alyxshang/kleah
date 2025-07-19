@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO actors (user_id, host, user_type, preferred_username, display_name, summary, manually_approves_followers, discoverable, indexable, published, memorial) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Text",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2a17eba8d770f6ccebcc49a1960c6ae12d9a0b471d15b7e931d3e6ca826654ca"
+}
