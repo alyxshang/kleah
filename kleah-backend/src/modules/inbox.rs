@@ -78,6 +78,12 @@ use super::database::create_user;
 /// URL parameters.
 use super::units::WebFingerResource;
 
+/// A service function to provide
+/// an API endpoint for posting activities
+/// to a user's inbox. If the operation
+/// is successful, an HTTP response with
+///  a success code is sent. If it fails,
+///  an error is returned.
 #[post("/{username}/inbox")]
 pub async fn user_inbox(
     req: HttpRequest,
@@ -87,6 +93,14 @@ pub async fn user_inbox(
     Ok(HttpResponse::Accepted().finish())
 }
 
+/// A function to post activities
+/// to a foreign actor's inbox,
+/// if a user on the local instance
+/// has interacted with a user on
+/// a remote instance. If the operation
+/// is successful nothing is returned.
+/// If the operation fails, an error is
+/// returned.
 pub async fn post_to_inbox(
     payload: ActivityNotify,
     pool: &Pool<Postgres>

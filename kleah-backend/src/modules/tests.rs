@@ -1,7 +1,7 @@
 use super::utils::parse_query;
-use super::outbox::WebFingerLink;
+use super::units::WebFingerLink;
 use super::outbox::get_stream_url;
-use super::outbox::WebFingerResponse;
+use super::units::WebFingerResponse;
 use super::outbox::get_actor_info_url;
 use super::outbox::get_actor_inbox_url;
 use super::outbox::get_actor_apub_info;

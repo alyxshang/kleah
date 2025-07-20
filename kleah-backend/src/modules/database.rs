@@ -27,6 +27,11 @@ use bcrypt::verify;
 /// that return something.
 use sqlx::query_as;
 
+/// Importing the data
+/// structure for crudding
+/// notes a user has created.
+use super::models::Note;
+
 /// Importing the default
 /// settings for salting
 /// and hashing.
@@ -53,6 +58,16 @@ use super::units::KeyPair;
 /// structure for explicit 
 /// typing.
 use sqlx::postgres::Postgres;
+
+/// Importing the function to
+/// generate a SHA-256 of a
+/// string.
+use super::utils::hash_string;
+
+/// Importing the "UserAPIToken"
+/// structure to create a new API
+/// token for a user.
+use super::models::UserAPIToken;
 
 /// Importing the model for
 /// storing instance information
@@ -372,4 +387,172 @@ pub async fn get_instance_info(
         )
     };
     Ok(inst_obj)
+}
+
+pub async fn create_api_token(
+    username: &String,
+    password: &String,
+    pool: &Pool<Postgres>
+) -> Result<UserAPIToken, KleahErr> {
+    let pa: PrivateActor = match get_private_actor_by_name(
+        &username,
+        pool
+    ).await {
+        Ok(pa) => pa,
+        Err(e) => return Err::<UserAPIToken, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let verified: bool = match verify(
+        password, 
+        &pa.user_password
+    ){
+        Ok(verified) => verified,
+        Err(e) => return Err::<UserAPIToken, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    if verified{
+        let token_base: String = format!(
+            "{}{}",
+            TimeNow::new().to_string(),
+            username
+        );
+        let token_str: String = hash_string(&token_base);
+        let token: UserAPIToken = UserAPIToken{
+            token: token_str.clone(),
+            user_id: username.clone()
+        };
+        let _insert_op: () = match query!(
+             "INSERT INTO user_api_tokens (token, user_id) VALUES ($1, $2)",
+             token.token,
+             token.user_id
+        )
+            .execute(pool)
+            .await
+        {
+            Ok(_feedback) => {},
+            Err(e) => return Err::<UserAPIToken, KleahErr>(
+                KleahErr::new(&e.to_string())
+            )
+        };
+        let inserted: UserAPIToken = match get_token_by_token(
+            &token_str, 
+            pool
+        ).await {
+            Ok(inserted) => inserted,
+            Err(e) => return Err::<UserAPIToken, KleahErr>(
+                KleahErr::new(&e.to_string())
+            )
+        };
+        Ok(inserted)
+    }
+    else {
+        Err::<UserAPIToken, KleahErr>(
+            KleahErr::new("Password verification failed.")
+        )
+    }
+}
+
+/// A function to retrieve an instance
+/// of a private actor's API token given 
+/// their username. If the operation fails, 
+/// an error is returned.
+pub async fn get_token_by_token(
+    name: &String,
+    pool: &Pool<Postgres>
+) -> Result<UserAPIToken, KleahErr> {
+    let token_obj: UserAPIToken = match query_as!(
+        UserAPIToken,
+        "SELECT * FROM user_api_tokens WHERE token = $1",
+        name
+    ).fetch_one(pool).await {
+        Ok(token_obj) => token_obj,
+        Err(e) => return Err::<UserAPIToken, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(token_obj)
+}
+
+/// A function to retrieve
+/// a note given the note's
+/// ID. If the operation is
+/// successful, an instance of
+/// the `Note` data structure
+/// is returned. If the operation
+/// fails, an error is returned.
+pub async fn get_note_by_id(
+    note_id: &String,
+    pool: &Pool<Postgres>
+) -> Result<Note, KleahErr>{
+    let note_obj: Note = match query_as!(
+        Note,
+        "SELECT * FROM notes WHERE note_id = $1",
+        note_id
+    ).fetch_one(pool).await {
+        Ok(note_obj) => note_obj,
+        Err(e) => return Err::<Note, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(note_obj)
+}
+
+pub async fn create_note(
+    username: &String,
+    is_reply: bool,
+    content: &String,
+    reply_to: &Option<String>,
+    pool: &Pool<Postgres>
+) -> Result<Note, KleahErr>{
+    let hash_source: String = format!(
+        "{}{}{}",
+        username,
+        TimeNow::new().to_string(),
+        content
+    );
+    let note_id: String = hash_string(&hash_source);
+    let reply_to_id: String;
+    match reply_to{
+        Some(id) => reply_to_id = id.to_string(),
+        None => reply_to_id = "".to_string()
+    };
+    let new_note: Note = Note {
+        note_id: note_id.clone(),
+        author: username.to_string(),
+        content: content.to_string(),
+        like_count: 0,
+        boost_count: 0,
+        is_reply: is_reply,
+        reply_to: reply_to_id
+    };
+    let _a_insert_op: () = match query!(
+        "INSERT INTO notes (note_id, author, content, like_count, boost_count, is_reply, reply_to) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        new_note.note_id,
+        new_note.author,
+        new_note.content,
+        new_note.like_count,
+        new_note.boost_count,
+        new_note.is_reply,
+        new_note.reply_to
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_feedback) => {},
+        Err(e) => return Err::<Note, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let saved: Note = match get_note_by_id(
+        &note_id.clone(), 
+        pool
+    ).await {
+        Ok(saved) => saved,
+        Err(e) => return Err::<Note, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(saved)
 }

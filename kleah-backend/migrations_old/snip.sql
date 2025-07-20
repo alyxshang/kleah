@@ -36,16 +36,6 @@ CREATE TABLE activity_hashtags(
     FOREIGN KEY (activity_id) REFERENCES actor_activities(activity_id) ON DELETE CASCADE
 );
 
-
-
--- A table for storing API tokens
--- belonging to a user.
-CREATE TABLE user_api_token(
-    token_id TEXT NOT NULL PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES private_actors(username) ON DELETE CASCADE
-);
-
 -- The table for saving
 -- blocking relationships 
 -- between actors.

@@ -56,11 +56,22 @@ use super::utils::parse_host;
 /// Importing the "WebFingerLInk"
 /// structure to dynamically build
 /// webfinger link resources.
-use super::outbox::WebFingerLink;
+use super::units::WebFingerLink;
+
+use super::models::UserAPIToken;
 
 /// Importing the function to create
 /// a new user in the database.
 use super::database::create_user;
+
+/// Importing the data structure that
+/// allows a user to create an API token.
+use super::units::LoginUserPayload;
+
+/// Importing the data structure that
+/// allows a user to destroy an API
+/// token.
+use super::units::LogoutUserPayload;
 
 /// Importing the structure
 /// to capture and deserialize
@@ -74,12 +85,15 @@ use super::units::SignUpUserPayload;
 
 /// Importing the structure to return
 /// a WebFinger response.
-use super::outbox::WebFingerResponse;
+use super::units::WebFingerResponse;
+
+/// Importing the function to create a new
+/// API token for a user.
+use super::database::create_api_token;
 
 /// Importing the function to retrieve
 /// an actor given their handle.
 use super::database::get_actor_by_name;
-
 
 /// A service function to
 /// create a user. If the operation
@@ -190,4 +204,22 @@ pub async fn webfinger_discovery(
             KleahErr::new(&e.to_string())
         )
     }
+}
+
+#[post("/api/token/create")]
+pub async fn login_user(
+    payload: Json<LoginUserPayload>,
+    data: Data<AppData>
+) -> Result<HttpResponse, KleahErr>{
+    let token: UserAPIToken = match create_api_token(
+        &payload.username, 
+        &payload.password, 
+        &data.pool
+    ).await {
+        Ok(token) => token,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(HttpResponse::Ok().json(token))
 }

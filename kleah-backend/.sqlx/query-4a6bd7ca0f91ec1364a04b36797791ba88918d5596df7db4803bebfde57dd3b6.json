@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM notes WHERE note_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "note_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "author",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "content",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "like_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "boost_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_reply",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "reply_to",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4a6bd7ca0f91ec1364a04b36797791ba88918d5596df7db4803bebfde57dd3b6"
+}

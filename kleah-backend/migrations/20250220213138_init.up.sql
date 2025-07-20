@@ -30,6 +30,14 @@ CREATE TABLE actors (
     FOREIGN KEY (user_id) REFERENCES private_actors(username) ON DELETE CASCADE
 );
 
+-- A table for storing API tokens
+-- belonging to a user.
+CREATE TABLE user_api_tokens(
+    token TEXT NOT NULL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES private_actors(username) ON DELETE CASCADE
+);
+
 -- A table for storing instance
 -- information.
 CREATE TABLE instance_info(
@@ -40,5 +48,15 @@ CREATE TABLE instance_info(
     instance_admin TEXT NOT NULL,
     instance_description TEXT NOT NULL,
     FOREIGN KEY (instance_admin) REFERENCES actors(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE notes(
+    note_id TEXT NOT NULL PRIMARY KEY,
+    author TEXT NOT NULL,
+    content TEXT NOT NULL,
+    like_count INTEGER NOT NULL,
+    boost_count INTEGER NOT NULL,
+    is_reply BOOLEAN NOT NULL,
+    reply_to TEXT NOT NULL
 );
 
