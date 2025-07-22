@@ -50,13 +50,38 @@ CREATE TABLE instance_info(
     FOREIGN KEY (instance_admin) REFERENCES actors(user_id) ON DELETE CASCADE
 );
 
+-- A table for storing
+-- user notes.
 CREATE TABLE notes(
     note_id TEXT NOT NULL PRIMARY KEY,
     author TEXT NOT NULL,
+    published TEXT NOT NULL,
     content TEXT NOT NULL,
     like_count INTEGER NOT NULL,
     boost_count INTEGER NOT NULL,
+    share_count INTEGER NOT NULL,
     is_reply BOOLEAN NOT NULL,
-    reply_to TEXT NOT NULL
+    reply_to TEXT NOT NULL,
+    sensitive BOOLEAN NOT NULL,
+    FOREIGN KEY (author) REFERENCES actors(user_id) ON DELETE CASCADE
 );
 
+-- A table for storing 
+-- user activities.
+CREATE TABLE user_acts (
+  activity_id TEXT NOT NULL PRIMARY KEY,
+  activity_type TEXT NOT NULL,
+  activity_author TEXT NOT NULL,
+  published_at TEXT NOT NULL,
+  FOREIGN KEY (activity_author) REFERENCES actors(user_id) ON DELETE CASCADE
+);
+
+-- A table for storing
+-- user activity sub-objects.
+CREATE TABLE user_act_objects(
+  object_id TEXT NOT NULL PRIMARY KEY,
+  activity_id TEXT NOT NULL,
+  publish_to TEXT NOT NULL,
+  copy_to TEXT NOT NULL,
+  FOREIGN KEY (activity_id) REFERENCES user_acts(activity_id) ON DELETE CASCADE
+);

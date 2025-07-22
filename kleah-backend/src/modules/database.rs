@@ -54,6 +54,11 @@ use super::utils::TimeNow;
 /// to save a keypair.
 use super::units::KeyPair;
 
+/// Importing the structure
+/// for modelling an activity
+/// in the database.
+use super::models::UserAct;
+
 /// Importing the "Postgres"
 /// structure for explicit 
 /// typing.
@@ -79,6 +84,12 @@ use super::models::InstanceInfo;
 /// i.e. a user with confidential
 /// information.
 use super::models::PrivateActor;
+
+/// Importing the structure
+/// for modelling the sub-object
+/// of a user activity in the
+/// database.
+use super::models::UserActObject;
 
 /// Importing the function to
 /// generate a public and private
@@ -503,6 +514,7 @@ pub async fn create_note(
     username: &String,
     is_reply: bool,
     content: &String,
+    sensitive: &bool,
     reply_to: &Option<String>,
     pool: &Pool<Postgres>
 ) -> Result<Note, KleahErr>{
@@ -521,21 +533,27 @@ pub async fn create_note(
     let new_note: Note = Note {
         note_id: note_id.clone(),
         author: username.to_string(),
+        published: TimeNow::new().to_string(),
         content: content.to_string(),
         like_count: 0,
         boost_count: 0,
+        share_count: 0,
         is_reply: is_reply,
-        reply_to: reply_to_id
+        reply_to: reply_to_id,
+        sensitive: *sensitive
     };
     let _a_insert_op: () = match query!(
-        "INSERT INTO notes (note_id, author, content, like_count, boost_count, is_reply, reply_to) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        "INSERT INTO notes (note_id, author, published, content, like_count, boost_count, share_count, is_reply, reply_to, sensitive) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
         new_note.note_id,
         new_note.author,
+        new_note.published,
         new_note.content,
         new_note.like_count,
         new_note.boost_count,
+        new_note.share_count,
         new_note.is_reply,
-        new_note.reply_to
+        new_note.reply_to,
+        new_note.sensitive
     )
         .execute(pool)
         .await

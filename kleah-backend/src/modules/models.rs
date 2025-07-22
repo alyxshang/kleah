@@ -45,11 +45,14 @@ pub struct UserAPIToken{
 pub struct Note{
     pub note_id: String,
     pub author: String,
+    pub published: String,
     pub content: String,
     pub like_count: i32,
     pub boost_count: i32,
+    pub share_count: i32,
     pub is_reply: bool,
-    pub reply_to: String
+    pub reply_to: String,
+    pub sensitive: bool
 }
 
 /// A model for storing
@@ -82,4 +85,27 @@ pub struct Actor{
     pub indexable: bool,
     pub published: String,
     pub memorial: bool,
+}
+
+/// A structure to model
+/// an activity executed by
+/// an actor in the database.
+#[derive(FromRow)]
+pub struct UserAct {
+  pub activity_id: String,
+  pub activity_type: String,
+  pub activity_author: String,
+  pub published_at: String,
+}
+
+/// A structure to model
+/// an object for an activity
+/// executed by a user in the
+/// database.
+#[derive(FromRow)]
+pub struct UserActObject{
+  pub object_id: String,
+  pub activity_id: String,
+  pub publish_to: String,
+  pub copy_to: String,
 }

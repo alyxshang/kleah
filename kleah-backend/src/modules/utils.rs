@@ -31,6 +31,10 @@ use sha2::Sha256;
 /// time.
 use chrono::Local;
 
+/// Get the current
+/// UTC offset.
+use chrono::Offset;
+
 /// Importing the prelude
 /// of the "rand" crate
 /// to use RSA.
@@ -121,7 +125,7 @@ pub struct TimeNow{
     pub hours: String,
     pub minutes: String,
     pub seconds: String,
-    pub millis: String
+    pub offset: String
 }
 
 /// Implementing generic
@@ -142,7 +146,7 @@ impl TimeNow{
         let hours: String = format!("{}",curr_time.format("%H"));
         let minutes: String = format!("{}",curr_time.format("%M"));
         let seconds: String = format!("{}",curr_time.format("%S"));
-        let millis: String = format!("{}",curr_time.format("%f"));
+        let offset: String = time.offset().fix().to_string();
         TimeNow {
             year,
             month,
@@ -150,7 +154,7 @@ impl TimeNow{
             hours,
             minutes,
             seconds,
-            millis
+            offset
         }
     }
     
@@ -159,18 +163,22 @@ impl TimeNow{
     /// of this structure.
     pub fn to_string(&self) -> String {
         format!(
-            "{}{}{}{}{}{}{}",
+            "{}-{}-{}T{}{}{}{}",
             &self.year, 
             &self.month, 
             &self.day, 
             &self.hours, 
             &self.minutes, 
             &self.seconds,
-            &self.millis
+            &self.offset
         )
     }
 }
 
+/// A function to generate a private and public
+/// keypair for a user. If the operation is successful,
+/// an instance of the `KeyPair` structure. If this operation
+/// fails, an error is returned.
 pub fn generate_keypair() -> Result<KeyPair, KleahErr>{
     let mut rng = rand::thread_rng();
     let bits = 2048;

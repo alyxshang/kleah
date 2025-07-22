@@ -15,28 +15,43 @@
       },
       {
         "ordinal": 2,
-        "name": "content",
+        "name": "published",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
+        "name": "content",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
         "name": "like_count",
         "type_info": "Int4"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "boost_count",
         "type_info": "Int4"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
+        "name": "share_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
         "name": "is_reply",
         "type_info": "Bool"
       },
       {
-        "ordinal": 6,
+        "ordinal": 8,
         "name": "reply_to",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "sensitive",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -45,6 +60,9 @@
       ]
     },
     "nullable": [
+      false,
+      false,
+      false,
       false,
       false,
       false,
