@@ -85,12 +85,6 @@ use super::models::InstanceInfo;
 /// information.
 use super::models::PrivateActor;
 
-/// Importing the structure
-/// for modelling the sub-object
-/// of a user activity in the
-/// database.
-use super::models::UserActObject;
-
 /// Importing the function to
 /// generate a public and private
 /// keypair for a user.
@@ -573,4 +567,82 @@ pub async fn create_note(
         )
     };
     Ok(saved)
+}
+
+pub async fn get_user_act_by_id(
+    activity_id: &String,
+    pool: &Pool<Postgres>
+) -> Result<UserAct, KleahErr>{
+    let act_obj: UserAct = match query_as!(
+        UserAct,
+        "SELECT * FROM user_acts WHERE activity_id = $1",
+        activity_id
+    ).fetch_one(pool).await {
+        Ok(act_obj) => act_obj,
+        Err(e) => return Err::<UserAct, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(act_obj)
+}
+
+pub async fn create_activity(
+    activity_type: &String,
+    activity_author: &String,
+    subject: &String,
+    pool: &Pool<Postgres>
+) -> Result<UserAct, KleahErr>{
+    let id: String = hash_string(
+        &format!(
+            "{}{}{}",
+            activity_author,
+            activity_type,
+            TimeNow::new().to_string()
+        )
+    );
+    if activity_type == "Create" ||
+        activity_type == "Follow" ||
+        activity_type == "Delete" ||
+        activity_type == "Like" ||
+        activity_type == "Announce"
+    {
+        let new_activity: UserAct = UserAct{
+            activity_id: id.clone(),
+            activity_type: activity_type.clone().to_string(),
+            activity_author: activity_author.to_string(),
+            published_at: TimeNow::new().to_string(),
+            object_id: subject.to_string()
+        };
+        let _a_insert_op: () = match query!(
+            "INSERT INTO user_acts (activity_id, activity_type,activity_author, published_at, object_id) VALUES ($1, $2, $3, $4, $5)",
+            new_activity.activity_id,
+            new_activity.activity_type,
+            new_activity.activity_author,
+            new_activity.published_at,
+            new_activity.object_id
+        )
+            .execute(pool)
+            .await
+        {
+            Ok(_feedback) => {},
+            Err(e) => return Err::<UserAct, KleahErr>(
+                KleahErr::new(&e.to_string())
+            )
+        };
+        let saved: UserAct = match get_user_act_by_id(
+            &id, 
+            pool
+        ).await {
+            Ok(saved) => saved,
+            Err(e) => return Err::<UserAct, KleahErr>(
+                KleahErr::new(&e.to_string())
+            )
+        };
+        Ok(saved)
+    }
+    else {
+        Err::<UserAct, KleahErr>(
+            KleahErr::new("Wrong activity type supplied.")
+        )
+    }
 }

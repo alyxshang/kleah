@@ -96,16 +96,5 @@ pub struct UserAct {
   pub activity_type: String,
   pub activity_author: String,
   pub published_at: String,
-}
-
-/// A structure to model
-/// an object for an activity
-/// executed by a user in the
-/// database.
-#[derive(FromRow)]
-pub struct UserActObject{
-  pub object_id: String,
-  pub activity_id: String,
-  pub publish_to: String,
-  pub copy_to: String,
+  pub object_id: String
 }

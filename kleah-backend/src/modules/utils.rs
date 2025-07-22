@@ -57,15 +57,6 @@ use super::err::KleahErr;
 /// to save a keypair.
 use super::units::KeyPair;
 
-/// Importing the "Postgres"
-/// structure from the "sqlx"
-/// crate.
-use sqlx::postgres::Postgres;
-
-/// Importing the trait to encode
-/// into PEM format.
-use pkcs1::EncodeRsaPrivateKey;
-
 /// Importing the trait to encode
 /// into PEM format.
 use pkcs1::EncodeRsaPublicKey;
@@ -74,6 +65,19 @@ use pkcs1::EncodeRsaPublicKey;
 /// to create a map.
 use std::collections::HashMap;
 
+/// Importing the "Postgres"
+/// structure from the "sqlx"
+/// crate.
+use sqlx::postgres::Postgres;
+
+/// Importing the structure
+/// to store information
+/// on a (foreign) handle.
+use super::units::ParsedHandle;
+
+/// Importing the trait to encode
+/// into PEM format.
+use pkcs1::EncodeRsaPrivateKey;
 
 pub fn parse_query(
     url_str: &String
@@ -238,6 +242,31 @@ pub fn parse_host(
     else {
         Err::<String, KleahErr>(
             KleahErr::new("Unable to parse string.")
+        )
+    }
+}
+
+pub fn parse_username(
+    username: &String
+) -> Result<ParsedHandle, KleahErr>{
+    let split_list: Vec<&str> = username
+        .split("@")
+        .collect::<Vec<&str>>();
+    if split_list.len() == 2{
+        Ok(
+            ParsedHandle{
+                username: split_list[0].to_string(),
+                host: split_list[1].to_string()
+            }
+        )
+    }
+    else {
+        let e: String = format!(
+            "Unable to parse \"{}\"!",
+            username
+        );
+        Err::<ParsedHandle, KleahErr>(
+            KleahErr::new(&e.to_string())
         )
     }
 }

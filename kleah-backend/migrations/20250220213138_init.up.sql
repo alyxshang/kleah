@@ -73,15 +73,6 @@ CREATE TABLE user_acts (
   activity_type TEXT NOT NULL,
   activity_author TEXT NOT NULL,
   published_at TEXT NOT NULL,
+  object_id TEXT NOT NULL,
   FOREIGN KEY (activity_author) REFERENCES actors(user_id) ON DELETE CASCADE
-);
-
--- A table for storing
--- user activity sub-objects.
-CREATE TABLE user_act_objects(
-  object_id TEXT NOT NULL PRIMARY KEY,
-  activity_id TEXT NOT NULL,
-  publish_to TEXT NOT NULL,
-  copy_to TEXT NOT NULL,
-  FOREIGN KEY (activity_id) REFERENCES user_acts(activity_id) ON DELETE CASCADE
 );

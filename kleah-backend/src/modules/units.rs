@@ -277,3 +277,8 @@ pub struct LoginUserPayload{
 pub struct LogoutUserPayload{
     pub token: String
 }
+
+pub struct ParsedHandle{
+    pub username: String,
+    pub host: String
+}

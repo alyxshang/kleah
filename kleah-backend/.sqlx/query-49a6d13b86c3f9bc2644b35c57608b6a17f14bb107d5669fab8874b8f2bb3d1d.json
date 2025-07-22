@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM user_acts WHERE activity_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "activity_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "activity_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "activity_author",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "published_at",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "object_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "49a6d13b86c3f9bc2644b35c57608b6a17f14bb107d5669fab8874b8f2bb3d1d"
+}
