@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO instance_info (instance_name, instance_host, instance_smtp, instance_pass, instance_admin, instance_description, default_primary, default_secondary, default_tertiary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c8768347dbf936329e49b3921e9de8e08ede1cd21521864fd4d19f2b36427d8e"
+}

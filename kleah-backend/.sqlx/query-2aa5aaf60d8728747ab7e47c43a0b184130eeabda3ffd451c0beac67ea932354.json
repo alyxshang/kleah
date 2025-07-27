@@ -32,12 +32,30 @@
         "ordinal": 5,
         "name": "instance_description",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "default_primary",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "default_secondary",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "default_tertiary",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": []
     },
     "nullable": [
+      false,
+      false,
+      false,
       false,
       false,
       false,

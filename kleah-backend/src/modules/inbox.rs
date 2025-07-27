@@ -73,6 +73,8 @@ use super::units::ActivityNotify;
 /// a new user in the database.
 use super::database::create_user;
 
+use super::database::get_actor_by_name;
+
 /// Importing the structure
 /// to capture and deserialize
 /// URL parameters.
@@ -87,9 +89,11 @@ use super::units::WebFingerResource;
 #[post("/{username}/inbox")]
 pub async fn user_inbox(
     req: HttpRequest,
+    payload: Json<ActivityNotify>,
     path: Path<String>
 ) -> Result<HttpResponse, KleahErr>{
     let user: String = path.into_inner();
+
     Ok(HttpResponse::Accepted().finish())
 }
 

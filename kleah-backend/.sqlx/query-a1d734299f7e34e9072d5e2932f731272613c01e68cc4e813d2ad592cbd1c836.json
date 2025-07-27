@@ -37,6 +37,21 @@
         "ordinal": 6,
         "name": "user_password",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "default_primary",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "default_secondary",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "default_tertiary",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -45,6 +60,9 @@
       ]
     },
     "nullable": [
+      false,
+      false,
+      false,
       false,
       false,
       false,

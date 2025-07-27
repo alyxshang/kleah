@@ -57,6 +57,22 @@ use super::err::KleahErr;
 /// to save a keypair.
 use super::units::KeyPair;
 
+/// Importing the "HttpRequest"
+/// structure to extract the 
+/// body.
+use actix_web::HttpRequest;
+
+/// Importing the "BytesMut"
+/// structure to manually
+/// parse a request body.
+use actix_web::web::BytesMut;
+
+use futures_util::stream::StreamExt;
+
+/// Importing this trait to
+/// manually parse a request body.
+use actix_web::HttpMessage;
+
 /// Importing the trait to encode
 /// into PEM format.
 use pkcs1::EncodeRsaPublicKey;
@@ -270,3 +286,26 @@ pub fn parse_username(
         )
     }
 }
+
+/*
+pub async fn get_body_str(
+    req: HttpRequest
+) -> Result<String, KleahErr>{
+    let mut body = BytesMut::new();
+    let mut pl = req.take_payload();
+    while let Some(chunk) = StreamExt::next(&mut pl){
+        match chunk {
+            Ok(bytes) => body.extend_from_slice(&bytes),
+            Err(_) => return Err::<String, KleahErr>(
+                KleahErr::new("Error reading body.")
+            )
+        };
+    }
+    let result: String = match String::from_utf8(body.to_vec()){
+        Ok(result) => result,
+        Err(e) => return Err::<String, KleahErr>(
+            KleahErr::new("Unable to parse body.")
+        )
+    };
+    Ok(result)
+}*/

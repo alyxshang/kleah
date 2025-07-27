@@ -26,7 +26,10 @@ pub struct InstanceInfo{
     pub instance_smtp: String,
     pub instance_pass: String,
     pub instance_admin: String,
-    pub instance_description: String
+    pub instance_description: String,
+    pub default_primary: String,
+    pub default_secondary: String,
+    pub default_tertiary: String
 }
 
 /// A model for storing
@@ -67,6 +70,9 @@ pub struct PrivateActor{
     pub private_key: String,
     pub public_key: String,
     pub user_password: String,
+    pub default_primary: String,
+    pub default_secondary: String,
+    pub default_tertiary: String
 }
 
 /// A model for storing
@@ -97,4 +103,24 @@ pub struct UserAct {
   pub activity_author: String,
   pub published_at: String,
   pub object_id: String
+}
+
+/// A model to represent 
+/// a file a user has uploaded
+/// in the database.
+#[derive(FromRow)]
+pub struct UserFile{
+    pub file_id: String,
+    pub file_owner: String,
+    pub file_path: String,
+    pub visibility: bool
+}
+
+//// A structure to model
+/// a relationship of a 
+/// like on a note.
+#[derive(FromRow)]
+pub struct UserLike{
+    pub user_id: String,
+    pub note_id: String
 }

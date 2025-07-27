@@ -59,6 +59,11 @@ use super::units::KeyPair;
 /// in the database.
 use super::models::UserAct;
 
+/// Importing the structure
+/// to model a user-uploaded
+/// file in the database.
+use super::models::UserFile;
+
 /// Importing the "Postgres"
 /// structure for explicit 
 /// typing.
@@ -104,6 +109,9 @@ pub async fn create_user(
     email_addr: &String,
     display_name: &String,
     user_type: &String,
+    default_primary: &Option<String>,
+    default_secondary: &Option<String>,
+    default_tertiary: &Option<String>,
     pool: &Pool<Postgres>
 ) -> Result<Actor, KleahErr> {
     let hashed_pwd: String = match hash(
@@ -121,6 +129,27 @@ pub async fn create_user(
             KleahErr::new(&e.to_string())
         )
     };
+    let inst: InstanceInfo = match get_instance_info(pool).await {
+        Ok(saved) => saved,
+        Err(e) => return Err::<Actor, KleahErr>(
+                KleahErr::new(&e.to_string())
+        )
+    };
+    let prim_color: String;
+    let seco_color: String;
+    let tert_color: String;
+    match default_primary {
+        Some(color) => prim_color = color.to_string(),
+        None => prim_color = inst.default_primary
+    };
+    match default_secondary {
+        Some(color) => seco_color = color.to_string(),
+        None => seco_color = inst.default_secondary
+    };
+    match default_tertiary {
+        Some(color) => tert_color = color.to_string(),
+        None => tert_color = inst.default_tertiary
+    };
     let private_actor: PrivateActor = PrivateActor{
         username: username.to_string(),
         email: email_addr.to_string(),
@@ -128,15 +157,12 @@ pub async fn create_user(
         privileged: *is_admin,
         private_key: keys.private,
         public_key: keys.public,
-        user_password: hashed_pwd
+        user_password: hashed_pwd,
+        default_primary: prim_color,
+        default_secondary: seco_color,
+        default_tertiary: tert_color
     };
-    let inst: InstanceInfo = match get_instance_info(pool).await {
-        Ok(saved) => saved,
-        Err(e) => return Err::<Actor, KleahErr>(
-                KleahErr::new(&e.to_string())
-        )
-    };
-    let actor: Actor = Actor {
+        let actor: Actor = Actor {
         user_id: username.to_string(),
         host: inst.instance_host,
         user_type: user_type.to_string(),
@@ -150,14 +176,17 @@ pub async fn create_user(
         memorial: false,
     };
     let _pa_insert_op: () = match query!(
-        "INSERT INTO private_actors (username, email, verified, privileged, private_key, public_key, user_password) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        "INSERT INTO private_actors (username, email, verified, privileged, private_key, public_key, user_password, default_primary, default_secondary, default_tertiary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
         private_actor.username,
         private_actor.email,
         private_actor.verified,
         private_actor.privileged,
         private_actor.private_key,
         private_actor.public_key,
-        private_actor.user_password
+        private_actor.user_password,
+        private_actor.default_primary,
+        private_actor.default_secondary,
+        private_actor.default_tertiary
         )
             .execute(pool)
             .await
@@ -319,6 +348,9 @@ pub async fn create_instance_info(
     inst_smtp: &String,
     inst_pass: &String,
     inst_admin: &String,
+    default_primary: &String,
+    default_secondary: &String,
+    default_tertiary: &String,
     inst_description: &String,
     pool: &Pool<Postgres>
 ) ->Result<InstanceInfo, KleahErr> {
@@ -328,6 +360,9 @@ pub async fn create_instance_info(
         instance_smtp: inst_smtp.to_string(),
         instance_pass: inst_pass.to_string(),
         instance_admin: inst_admin.to_string(),
+        default_primary: default_primary.to_string(),
+        default_secondary: default_secondary.to_string(),
+        default_tertiary: default_tertiary.to_string(),
         instance_description: inst_description.to_string()
     };
     let exists: bool = match private_actor_exists(inst_admin, pool).await {
@@ -338,13 +373,16 @@ pub async fn create_instance_info(
     };
     if exists{
         let _insert_op: () = match query!(
-            "INSERT INTO instance_info (instance_name, instance_host, instance_smtp, instance_pass, instance_admin, instance_description) VALUES ($1, $2, $3, $4, $5, $6)",
+            "INSERT INTO instance_info (instance_name, instance_host, instance_smtp, instance_pass, instance_admin, instance_description, default_primary, default_secondary, default_tertiary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
             inst.instance_name,
             inst.instance_host,
             inst.instance_smtp,
             inst.instance_pass,
             inst.instance_admin,
             inst.instance_description,
+            inst.default_primary,
+            inst.default_secondary,
+            inst.default_tertiary
         )
             .execute(pool)
             .await
@@ -646,3 +684,71 @@ pub async fn create_activity(
         )
     }
 }
+
+pub async fn create_user_file(
+    file_path: &String,
+    file_owner: &String,
+    file_visibility: &bool,
+    pool: &Pool<Postgres>
+) -> Result<UserFile, KleahErr>{
+    let file_id: String = format!(
+        "{}{}{}",
+        file_path,
+        file_owner,
+        TimeNow::new().to_string()
+    );
+    let file: UserFile = UserFile{
+        file_id: file_id.clone(),
+        file_owner: file_owner.to_string(),
+        file_path: file_path.to_string(),
+        visibility: *file_visibility
+    };
+    let _f_insert_op: () = match query!(
+        "INSERT INTO user_files (file_id, file_owner, file_path, visibility) VALUES ($1, $2, $3, $4)",
+        file.file_id,
+        file.file_owner,
+        file.file_path,
+        file.visibility
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_feedback) => {},
+        Err(e) => return Err::<UserFile, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched: UserFile = match get_file_by_id(&file_id, pool).await {
+        Ok(fetched) => fetched,
+        Err(e) => return Err::<UserFile, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(fetched)
+
+}
+
+/// A function to retrieve
+/// a file given the file's
+/// ID. If the operation is
+/// successful, an instance of
+/// the `UserFile` data structure
+/// is returned. If the operation
+/// fails, an error is returned.
+pub async fn get_file_by_id(
+    file_id: &String,
+    pool: &Pool<Postgres>
+) -> Result<UserFile, KleahErr>{
+    let file_obj: UserFile = match query_as!(
+        UserFile,
+        "SELECT * FROM user_files WHERE file_id = $1",
+        file_id
+    ).fetch_one(pool).await {
+        Ok(file_obj) => file_obj,
+        Err(e) => return Err::<UserFile, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(file_obj)
+}
+

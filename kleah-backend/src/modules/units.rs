@@ -39,7 +39,10 @@ pub struct SignUpUserPayload{
     pub password: String,
     pub display_name: String,
     pub email_addr: String,
-    pub user_type: String
+    pub user_type: String,
+    pub default_primary: Option<String>,
+    pub default_secondary: Option<String>,
+    pub default_tertiary: Option<String>,
 }
 
 /// A structure to capture

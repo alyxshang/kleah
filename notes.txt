@@ -1,0 +1,16 @@
+When to post to foreign inbox:
+
+- When local user makes new post.
+- When local user mentions a foreign user.
+- When local user follows a foreign user.
+- When local user likes a foreign user.
+- When local user boosted a post of a foreign user.
+
+What to trigger if a POST request is receieved:
+
+- When a foreign user followed by a local user posts.
+- When a foreign user likes a post of a local user, increment
+  like_count.
+- When a forein user follows a local user, add that user to follower's
+  list.
+- If a foreign user boosts a local user's post, increment the boost_count and store that person in my database plus add them to the list of people who boosted

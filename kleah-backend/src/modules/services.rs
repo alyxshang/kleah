@@ -113,6 +113,9 @@ pub async fn signup_user(
         &payload.email_addr,
         &payload.display_name,
         &payload.user_type,
+        &payload.default_primary,
+        &payload.default_secondary,
+        &payload.default_tertiary,
         &data.pool
     ).await {
         Ok(new_user) => new_user,
@@ -223,3 +226,150 @@ pub async fn login_user(
     };
     Ok(HttpResponse::Ok().json(token))
 }
+
+/* TIMELINE START */
+#[post("/timeline/following")]
+pub async fn user_time_line_following_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/timeline/global")]
+pub async fn user_time_line_global_service(
+) -> Result<HttpResponse, KleahErr>{}
+/* TIMELINE END */
+
+
+/* USER START */
+#[get("/user/profile")]
+pub async fn user_profile_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/files/private")]
+pub async fn user_files_private_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[get("/user/files/public")]
+pub async fn user_files_public_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/follow")]
+pub async fn user_follow_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/unfollow")]
+pub async fn user_unfollow_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/email")]
+pub async fn user_edit_email_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/password")]
+pub async fn user_edit_password_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/colors/primary")]
+pub async fn user_edit_pc_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/colors/secondary")]
+pub async fn user_edit_sc_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/colors/tertiary")]
+pub async fn user_edit_tc_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/name")]
+pub async fn user_edit_name_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/bio")]
+pub async fn user_edit_bio_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/indexable")]
+pub async fn user_edit_indexable_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/memorial")]
+pub async fn user_edit_memorial_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/user/edit/findable")]
+pub async fn user_edit_findable_service(
+) -> Result<HttpResponse, KleahErr>{}
+/* USER END */
+
+
+/* INSTANCE START */
+#[post("/instance/edit/name")]
+pub async fn edit_instance_name_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/instance/edit/primary")]
+pub async fn edit_instance_primary_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/instance/edit/secondary")]
+pub async fn edit_instance_secondary_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/instance/edit/tertiary")]
+pub async fn edit_instance_tertiary_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/instance/edit/host")]
+pub async fn edit_instance_host_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/instance/edit/smtp/host")]
+pub async fn edit_instance_smtp_host_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/instance/edit/smtp/pass")]
+pub async fn edit_instance_smtp_pass_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/instance/edit/admin")]
+pub async fn edit_instance_admin_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/instance/edit/description")]
+pub async fn edit_instance_description_service(
+) -> Result<HttpResponse, KleahErr>{}
+/* INSTANCE END */
+
+
+/* NOTES START */
+#[post("/notes/boost")]
+pub async fn note_boost_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/notes/unboost")]
+pub async fn note_unboost_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/notes/share")]
+pub async fn note_share_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[get("/notes/like")]
+pub async fn note_like_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/notes/unlike")]
+pub async fn note_unlike_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/notes/create")]
+pub async fn note_create_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/notes/delete")]
+pub async fn note_delete_service(
+) -> Result<HttpResponse, KleahErr>{}
+
+#[post("/notes/edit")]
+pub async fn note_edit_service(
+) -> Result<HttpResponse, KleahErr>{}
+/* NOTES END */
