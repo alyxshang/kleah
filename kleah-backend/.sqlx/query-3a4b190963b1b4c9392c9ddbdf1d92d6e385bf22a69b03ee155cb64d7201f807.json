@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM actors WHERE username = $1 AND host = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "actor_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "host",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "liked",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "inbox",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "outbox",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "following",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "followers",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "public_key",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3a4b190963b1b4c9392c9ddbdf1d92d6e385bf22a69b03ee155cb64d7201f807"
+}

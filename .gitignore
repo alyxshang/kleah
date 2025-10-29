@@ -1,0 +1,6 @@
+# General
+.DS_Store
+
+# Backend.
+/kleah-backend/target
+/kleah-backend/Cargo.lock
