@@ -8,10 +8,28 @@ Licensed under the FSL v1.
 /// variables.
 use std::env::var;
 
+/// Importing the structure
+/// to create a new Actix Web
+/// App.
 use actix_web::App;
 
+/// Importing the structure
+/// to contain any custom
+/// data structures to keep
+/// track of app-wide data.
 use actix_web::web::Data;
 
+/// Importing the function
+/// for generating a string
+/// containing the time in
+/// a RF2282-compliant format
+/// to test it.
+use super::utils::rfc2282;
+
+/// Importing the structure
+/// containing the pool of 
+/// connections to the PostgreSQL
+/// database.
 use super::units::AppData;
 
 /// Importing the function to
@@ -19,6 +37,12 @@ use super::units::AppData;
 /// email address string to test
 /// it.
 use super::utils::check_email;
+
+/// Importing the function to generate
+/// a hash as a string of a supplied
+/// string to test it.
+use super::utils::hash_string;
+
 
 /// Importing the function to retrieve
 /// user information from the database
@@ -59,6 +83,9 @@ use super::utils::check_password;
 /// an RSA keypari to test it.
 use super::utils::generate_keypair;
 
+/// Importing the enumeration describing
+/// all possible types of Kleah users to
+/// test it.
 use super::payloads::KleahUserType;
 
 /// Importing the function to create
@@ -75,8 +102,13 @@ use super::api::create_user_service;
 /// record to test it.
 use super::db::create_instance_info;
 
+/// Importing the data structure to
+/// supply data for creating a new
+/// Kleah user.
 use super::payloads::UserCreatePayload;
 
+/// Importing this entity to set the content-type
+/// header for test requests.
 use actix_web::http::header::ContentType;
 
 /// The function to test functions
@@ -94,11 +126,15 @@ pub async fn test_utility_functions(){
     let db_url: String = var("KLEAH_DB_URL")
         .expect("Failed to read environment variable.");
     let connection = create_connection(&db_url).await;
+    let time_str: String = rfc2282();
+    let time_hash: String = hash_string(&time_str);
     assert_eq!(email_t, true);
     assert_eq!(email_f, false);
     assert_eq!(username_t, true);
     assert_eq!(username_f, false);
+    assert_ne!(time_str.len(), 0);
     assert_eq!(password_t, true);
+    assert_ne!(time_hash.len(), 0);
     assert_eq!(password_f, false);
     assert_eq!(gen_kp.is_ok(), true);
     assert_eq!(connection.is_ok(), true);
@@ -123,7 +159,8 @@ pub async fn test_database_functions(){
         "123456789", 
         "alyxshang", 
         "me@example.com", 
-        "A person of interest.", 
+        "A person of interest.",
+        &false,
         &connection
     ).await
         .expect("Could not create user.");

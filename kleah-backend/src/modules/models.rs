@@ -22,7 +22,8 @@ pub struct KleahUser{
     pub email_addr: String,
     pub public_key: String,
     pub description: String,
-    pub private_key: String
+    pub private_key: String,
+    pub is_admin: bool
 }
 
 /// A structure to model
@@ -51,4 +52,14 @@ pub struct KleahActor{
 #[derive(FromRow)]
 pub struct InstanceInformation{
     pub host: String
+}
+
+/// A structure to model
+/// information about a
+/// user's API token in the
+/// database.
+#[derive(FromRow)]
+pub struct UserAPIToken{
+    pub username: String,
+    pub token: String
 }

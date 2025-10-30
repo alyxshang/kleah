@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM user_api_tokens WHERE token = $1 AND username = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e30a6cd12413457fe5e32dc05d5c29a08c710fa10cacab7388732bfead3593b1"
+}

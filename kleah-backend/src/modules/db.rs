@@ -40,6 +40,12 @@ use bcrypt::DEFAULT_COST;
 /// about a user's RSA keypair.
 use super::units::KeyPair;
 
+/// Importing the function
+/// to generate a string
+/// containing the current
+/// time in the RFC2282 format.
+use super::utils::rfc2282;
+
 /// Importing the structure that
 /// represents a connection to a 
 /// PostgreSQL database.
@@ -55,6 +61,17 @@ use super::models::KleahUser;
 /// actor on a Kleah instance in the 
 /// database.
 use super::models::KleahActor;
+
+/// Importing the function to
+/// generate a SHA-256 hash
+/// as a string of the given
+/// string.
+use super::utils::hash_string;
+
+/// Importing the data structure
+/// modelling a user's API token
+/// in the database.
+use super::models::UserAPIToken;
 
 /// Importing the function for generating
 /// an RSA keypair for a user.
@@ -77,6 +94,7 @@ pub async fn create_new_user(
     username: &str,
     email_addr: &str,
     description: &str,
+    is_admin: &bool,
     pool: &Pool<Postgres>
 ) -> Result<KleahUser, KleahErr>{
     let hashed_pwd: String = match hash(
@@ -110,10 +128,11 @@ pub async fn create_new_user(
         email_addr: hashed_email,
         public_key: pair.public_key,
         description: description.to_string(),
-        private_key: pair.private_key
+        private_key: pair.private_key,
+        is_admin: *is_admin
     };
     let _insert_op = match query!(
-        "INSERT INTO users (name, username, password, email_addr, public_key, description, private_key) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        "INSERT INTO users (name, username, password, email_addr, public_key, description, private_key, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
         obj.name,
         obj.username,
         obj.password,
@@ -121,6 +140,7 @@ pub async fn create_new_user(
         obj.public_key,
         obj.description,
         obj.private_key,
+        obj.is_admin
     )
         .execute(pool)
         .await
@@ -332,4 +352,399 @@ pub async fn get_instance_info(
         )
     };
     Ok(object)
+}
+
+/// This function attempts to create a new API token
+/// for a user and store it in the database. If the 
+/// operation is successful, an instance of the 
+/// `UserAPIToken` is returned. If the operation fails,
+/// an error is returned.
+pub async fn create_api_token(
+    username: &str,
+    pool: &Pool<Postgres>
+) -> Result<UserAPIToken, KleahErr>{
+    let fetched: KleahUser = match get_user_by_id(
+        username,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<UserAPIToken, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let token_str: String = hash_string(
+        &format!(
+            "{}{}{}", 
+            fetched.username,
+            fetched.name,
+            rfc2282()
+        )
+    );
+    let obj: UserAPIToken = UserAPIToken{ 
+        username: fetched.username, 
+        token: token_str
+    };
+    let _insert_op = match query!(
+        "INSERT INTO user_api_tokens (username, token) VALUES ($1, $2)",
+        obj.username,
+        obj.token
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_feedback) => {},
+        Err(e) => return Err::<UserAPIToken, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched_token: UserAPIToken = match get_token_by_token(
+        &obj.token,
+        pool
+    ).await {
+        Ok(fetched_token) => fetched_token,
+        Err(e) => return Err::<UserAPIToken, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(fetched_token)
+}
+
+/// A function that attempts to retrieve a record
+/// about a Kleah user's API token given the user's
+/// API token string. If the operation is successful, 
+/// an instance of the `UserAPIToken` structure is 
+/// returned. If the operation fails, an error is 
+/// returned.
+pub async fn get_token_by_token(
+    token: &str,
+    pool: &Pool<Postgres>
+) -> Result<UserAPIToken, KleahErr>{
+    let object: UserAPIToken = match query_as!(
+        UserAPIToken,
+        "SELECT * FROM user_api_tokens WHERE token = $1",
+        token
+    )
+        .fetch_one(pool)
+        .await 
+    {
+        Ok(object) => object,
+        Err(e) => return Err::<UserAPIToken, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(object)
+}
+
+/// This function checks
+/// all records in the database
+/// for the record of a user with
+/// the given username. The existence
+/// of this record is reflected by
+/// the boolean value returned.
+pub async fn user_exists(
+    username: &str,
+    pool: &Pool<Postgres>
+) -> bool {
+    get_user_by_id(username, pool)
+        .await
+        .is_ok()
+}
+
+/// Attempts to retrieve the record of a user
+/// from the database given one of their API
+/// tokens. If the operation is successful,
+/// an instance of the `KleahUser` structure
+/// is returned. If the operation fails, an 
+/// error is returned.
+pub async fn get_user_by_token(
+    token: &str,
+    pool: &Pool<Postgres>
+) -> Result<KleahUser, KleahErr>{
+    let fetched_token: UserAPIToken = match get_token_by_token(
+        token,
+        pool
+    ).await {
+        Ok(fetched_token) => fetched_token,
+        Err(e) => return Err::<KleahUser, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched: KleahUser = match get_user_by_id(
+        &fetched_token.username,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<KleahUser, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(fetched)
+}
+
+/// Attempts to update the password column of
+/// a user's record in the database. If the
+/// operation is successful, nothing is
+/// returned. If the operation fails, an error
+/// is returned.
+pub async fn update_password(
+    username: &str,
+    new_password: &str,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let new_hashed_pwd: String = match hash(new_password, DEFAULT_COST){
+        Ok(new_hashed_pwd) => new_hashed_pwd,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched_user: KleahUser = match get_user_by_id(
+        &username,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let update_op: () = match query!(
+        "UPDATE users SET password = $1 WHERE username = $2",
+        new_hashed_pwd,
+        fetched_user.username
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_f) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(update_op)
+}
+
+/// Attempts to update the email column of
+/// a user's record in the database. If the
+/// operation is successful, nothing is
+/// returned. If the operation fails, an error
+/// is returned.
+pub async fn update_email(
+    username: &str,
+    new_email: &str,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let new_hashed_email: String = match hash(new_email, DEFAULT_COST){
+        Ok(new_hashed_email) => new_hashed_email,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched_user: KleahUser = match get_user_by_id(
+        &username,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let update_op: () = match query!(
+        "UPDATE users SET email_addr = $1 WHERE username = $2",
+        new_hashed_email,
+        fetched_user.username
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_f) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(update_op)
+}
+
+/// Attempts to update the description column of
+/// a user's record and the corresponding actor's 
+/// record in the database. If the
+/// operation is successful, nothing is
+/// returned. If the operation fails, an error
+/// is returned.
+pub async fn update_description(
+    username: &str,
+    new_description: &str,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let fetched_user: KleahUser = match get_user_by_id(
+        &username,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let instance_info: InstanceInformation = match get_instance_info(
+        pool
+    ).await {
+        Ok(instance_info) => instance_info,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched_actor: KleahActor = match get_actor_by_id(
+        &fetched_user.username,
+        &instance_info.host,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let _update_op: () = match query!(
+        "UPDATE users SET description = $1 WHERE username = $2",
+        new_description,
+        fetched_user.username
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_f) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let update_op: () = match query!(
+        "UPDATE actors SET description = $1 WHERE username = $2",
+        new_description,
+        fetched_actor.username
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_f) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(update_op)
+}
+
+/// Attempts to update the name column of
+/// a user's record and the corresponding actor's 
+/// record in the database. If the
+/// operation is successful, nothing is
+/// returned. If the operation fails, an error
+/// is returned.
+pub async fn update_name(
+    username: &str,
+    new_name: &str,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let fetched_user: KleahUser = match get_user_by_id(
+        &username,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let instance_info: InstanceInformation = match get_instance_info(
+        pool
+    ).await{
+        Ok(instance_info) => instance_info,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched_actor: KleahActor = match get_actor_by_id(
+        &fetched_user.username,
+        &instance_info.host,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+
+    let _update_op: () = match query!(
+        "UPDATE users SET name = $1 WHERE username = $2",
+        new_name,
+        fetched_user.username
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_f) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let update_op: () = match query!(
+        "UPDATE actors SET name = $1 WHERE username = $2",
+        new_name,
+        fetched_actor.username
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_f) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(update_op)
+}
+
+/// Attempts to delete a record of an
+/// API token from the database. If the
+/// operation is successful, nothing is
+/// returned. If the operation fails,
+/// an error is returned.
+pub async fn destroy_token(
+    username: &str,
+    token: &str,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let fetched_token: UserAPIToken = match get_token_by_token(
+        token,
+        pool
+    ).await {
+        Ok(fetched_token) => fetched_token,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched_user: KleahUser = match get_user_by_id(
+        &username,
+        pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    if fetched_token.username == fetched_user.username {
+        let del_op: () = match query!(
+            "DELETE FROM user_api_tokens WHERE token = $1 AND username = $2",
+            fetched_token.token,
+            fetched_user.username
+        )
+            .execute(pool)
+            .await 
+        {
+            Ok(_f) => {},
+            Err(e) => return Err::<(), KleahErr>(
+                KleahErr::new(&e.to_string())
+            )
+        };
+        Ok(del_op)
+    }
+    else {
+        Err::<(), KleahErr>(
+            KleahErr::new("User and token owner do not match.")
+        )
+    }
 }

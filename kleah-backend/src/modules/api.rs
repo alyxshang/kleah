@@ -4,6 +4,10 @@ Licensed under the FSL v1.
 */
 
 /// Importing the function
+/// to verify a hashed string.
+use bcrypt::verify;
+
+/// Importing the function
 /// macro for making "POST"
 /// requests.
 use actix_web::post;
@@ -29,6 +33,22 @@ use actix_web::web::Data;
 /// database.
 use super::units::AppData;
 
+/// Importing the function
+/// to check whether a user
+/// exists or not.
+use super::db::user_exists;
+
+/// Importing the function to
+/// change the name of a Kleah
+/// user and the corresponding
+/// actor.
+use super::db::update_name;
+
+/// Importing the function to
+/// update the email of a
+/// Kleah user.
+use super::db::update_email;
+
 /// Importing the "Httpresponse"
 /// structure to return errors
 /// as HTTP responses.
@@ -39,11 +59,22 @@ use actix_web::HttpResponse;
 /// in the database.
 use super::models::KleahUser;
 
+/// Importing the function to wipe
+/// a record of an API token from
+/// the database.
+use super::db::destroy_token;
+
 /// Importing the data structure
 /// modelling data about an ActivityPub
 /// actor on a Kleah instance in the 
 /// database.
 use super::models::KleahActor;
+
+/// Importing the function to
+/// retrieve the record of a user
+/// in the database given their
+/// username.
+use super::db::get_user_by_id;
 
 /// Importing the function to check
 /// whether a supplied string is a
@@ -56,15 +87,36 @@ use super::utils::check_email;
 use super::db::create_new_user;
 
 /// Importing the function to
+/// update the password of a
+/// Kleah user.
+use super::db::update_password;
+
+/// Importing the function to
 /// create a record for a new
 /// Kleah ActivityPub actor
 /// in the database.
 use super::db::create_new_actor;
 
+/// Importing the function to create
+/// a new record for a new API token
+/// for a Kleah user in the database.
+use super::db::create_api_token;
+
+/// Importing the data structure
+/// modelling a user's API token
+/// in the database.
+use super::models::UserAPIToken;
+
+
 /// Importing the function for
 /// retrieving information about
 /// the current Kleah instance.
 use super::db::get_instance_info;
+
+/// Importing the function to 
+/// retrieve the record of a user
+/// given that user's API token.
+use super::db::get_user_by_token;
 
 /// Importing the function to check
 /// whether a supplied string is a
@@ -76,10 +128,23 @@ use super::utils::check_username;
 /// valid password.
 use super::utils::check_password;
 
+/// Importing the function to
+/// change the name of a Kleah
+/// user and the corresponding
+/// actor.
+use super::db::update_description;
+
 /// Importing the enumeration describing
 /// the types of Kleah users that can
 /// exist.
 use super::payloads::KleahUserType;
+
+/// Importing the structure for serializing 
+/// a Rust data structure containing data
+/// on whether a change to a user's record
+/// was successful or not into
+/// a JSON string.
+use super::responses::StatusResponse;
 
 /// Importing the data structure
 /// modelling data about the current
@@ -91,11 +156,34 @@ use super::models::InstanceInformation;
 /// creating a new Kleah user.
 use super::payloads::UserCreatePayload;
 
+/// Importing the data structure representing
+/// a JSON payload containing data to make a
+/// trivial change to the record(s) of a user
+/// in the database.
+use super::payloads::UserChangePayload;
+
+/// Importing the structure representing
+/// a JSON payload containing data for 
+/// creating a new API token for a Kleah user.
+use super::payloads::CreateTokenPayload;
+
 /// Importing the structure for serializing 
 /// a Rust data structure containing data
 /// on a created Kleah user and actor into
 /// a JSON string.
 use super::responses::UserCreateResponse;
+
+/// Importing the structure for serializing 
+/// a Rust data structure containing data
+/// on a created API token for a Kleah user
+/// into a JSON string.
+use super::responses::CreateTokenResponse;
+
+/// Importing the data structure representing
+/// a JSON payload containing data to make a
+/// signifcant change to the record(s) of a user
+/// in the database.
+use super::payloads::SecureUserChangePayload;
 
 /// A service function that accepts a JSON
 /// payload for creating a new Kleah user
@@ -109,9 +197,11 @@ pub async fn create_user_service(
     payload: Json<UserCreatePayload>,
     data: Data<AppData>
 ) -> Result<HttpResponse, KleahErr>{
+    let u_e: bool = user_exists(&payload.username, &data.pool).await;
     if check_username(&payload.username) &&
        check_password(&payload.password) &&
-       check_email(&payload.email_addr)
+       check_email(&payload.email_addr) &&
+       !u_e
     {
         let kleah_user: KleahUser = match create_new_user(
             &payload.name,
@@ -119,6 +209,7 @@ pub async fn create_user_service(
             &payload.username,
             &payload.email_addr,
             &payload.description,
+            &false,
             &data.pool
         ).await {
             Ok(kleah_user) => kleah_user,
@@ -173,6 +264,239 @@ pub async fn create_user_service(
     else {
         Err::<HttpResponse, KleahErr>(
             KleahErr::new("Password, E-Mail address or username were of the wrong format.")
+        )
+    }
+}
+
+#[post("/api/user/edit/name")]
+pub async fn update_name_service(
+    payload: Json<UserChangePayload>,
+    data: Data<AppData>
+) -> Result<HttpResponse, KleahErr>{
+    let user: KleahUser = match get_user_by_token(
+        &payload.api_token,
+        &data.pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let status: bool = match update_name(
+        &user.username,
+        &payload.new_entity,
+        &data.pool
+    ).await {
+        Ok(_f) => true,
+        Err(_e) => false
+    };
+    let resp: StatusResponse = StatusResponse{
+        status: status
+    };
+    Ok(HttpResponse::Ok().json(resp))
+}
+
+#[post("/api/user/edit/bio")]
+pub async fn update_description_service(
+    payload: Json<UserChangePayload>,
+    data: Data<AppData>
+) -> Result<HttpResponse, KleahErr>{
+    let user: KleahUser = match get_user_by_token(
+        &payload.api_token,
+        &data.pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let status: bool = match update_description(
+        &user.username,
+        &payload.new_entity,
+        &data.pool
+    ).await {
+        Ok(_f) => true,
+        Err(_e) => false
+    };
+    let resp: StatusResponse = StatusResponse{
+        status: status
+    };
+    Ok(HttpResponse::Ok().json(resp))
+}
+
+#[post("/api/user/edit/password")]
+pub async fn update_password_service(
+    payload: Json<SecureUserChangePayload>,
+    data: Data<AppData>
+) -> Result<HttpResponse, KleahErr>{
+    let user: KleahUser = match get_user_by_token(
+        &payload.api_token,
+        &data.pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let verified: bool = match verify(
+        &payload.old_entity,
+        &user.password
+    ){
+        Ok(verified) => verified,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    if verified {
+        let status: bool = match update_password(
+           &user.username,
+           &payload.new_entity,
+           &data.pool
+        ).await {
+            Ok(_f) => true,
+            Err(_e) => false
+        };
+        let resp: StatusResponse = StatusResponse{
+            status: status
+        };
+        Ok(HttpResponse::Ok().json(resp))
+    }
+    else {
+        Err::<HttpResponse,KleahErr>(
+            KleahErr::new("Password integrity could not be verified.")
+        )
+    }
+}
+
+#[post("/api/user/edit/email")]
+pub async fn update_email_service(
+    payload: Json<SecureUserChangePayload>,
+    data: Data<AppData>
+) -> Result<HttpResponse, KleahErr>{
+    let user: KleahUser = match get_user_by_token(
+        &payload.api_token,
+        &data.pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let verified: bool = match verify(
+        &payload.old_entity,
+        &user.email_addr
+    ){
+        Ok(verified) => verified,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    if verified {
+        let status: bool = match update_email(
+           &user.username,
+           &payload.new_entity,
+           &data.pool
+        ).await {
+            Ok(_f) => true,
+            Err(_e) => false
+        };
+        let resp: StatusResponse = StatusResponse{
+            status: status
+        };
+        Ok(HttpResponse::Ok().json(resp))
+    }
+    else {
+        Err::<HttpResponse,KleahErr>(
+            KleahErr::new("Email integrity could not be verified.")
+        )
+    }
+}
+
+#[post("/api/user/token/create")]
+pub async fn create_api_token_service(
+    payload: Json<CreateTokenPayload>,
+    data: Data<AppData>
+) -> Result<HttpResponse, KleahErr>{
+    let user: KleahUser = match get_user_by_id(
+        &payload.username,
+        &data.pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let verified: bool = match verify(
+        &payload.password,
+        &user.password
+    ){
+        Ok(verified) => verified,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    if verified {
+        let token: UserAPIToken = match create_api_token(
+            &user.username,
+            &data.pool
+        ).await {
+            Ok(token) => token,
+            Err(e) => return Err::<HttpResponse, KleahErr>(
+                KleahErr::new(&e.to_string())
+            )
+        };
+        let response: CreateTokenResponse = CreateTokenResponse{
+            api_token: token.token
+        };
+        Ok(HttpResponse::Ok().json(response))
+    }
+    else {
+        Err::<HttpResponse,KleahErr>(
+            KleahErr::new("Password integrity could not be verified.")
+        )
+    }
+}
+
+#[post("/api/user/token/delete")]
+pub async fn delete_api_token_service(
+    payload: Json<UserChangePayload>,
+    data: Data<AppData>
+) -> Result<HttpResponse, KleahErr>{
+    let user: KleahUser = match get_user_by_token(
+        &payload.api_token,
+        &data.pool
+    ).await {
+        Ok(user) => user,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let verified: bool = match verify(
+        &payload.new_entity,
+        &user.password
+    ){
+        Ok(verified) => verified,
+        Err(e) => return Err::<HttpResponse, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    if verified {
+        let status: bool = match destroy_token(
+            &user.username, 
+            &payload.api_token, 
+            &data.pool
+        ).await {
+            Ok(_f) => true,
+            Err(_e) => false
+        };
+        let resp: StatusResponse = StatusResponse{
+            status: status
+        };
+        Ok(HttpResponse::Ok().json(resp))
+    }
+    else {
+        Err::<HttpResponse,KleahErr>(
+            KleahErr::new("Password integrity could not be verified.")
         )
     }
 }

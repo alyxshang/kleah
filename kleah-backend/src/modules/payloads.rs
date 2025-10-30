@@ -35,3 +35,38 @@ pub struct UserCreatePayload{
     pub description: String,
     pub user_type: KleahUserType
 }
+
+/// Declaring a data structure
+/// that models data in a JSON 
+/// string received for making
+/// a trivial change to the
+/// record of a Kleah user in
+/// the database.
+#[derive(Serialize, Deserialize)]
+pub struct UserChangePayload{
+    pub api_token: String,
+    pub new_entity: String
+}
+
+/// Declaring a data structure
+/// that models data in a JSON 
+/// string received for making
+/// a significant change to the
+/// record of a Kleah user in
+/// the database.
+#[derive(Serialize, Deserialize)]
+pub struct SecureUserChangePayload{
+    pub api_token: String,
+    pub new_entity: String,
+    pub old_entity: String,
+}
+
+/// Declaring a data structure
+/// that models data in a JSON 
+/// string received for creating
+/// a new API token for a Kleah user.
+#[derive(Serialize, Deserialize)]
+pub struct CreateTokenPayload{
+    pub username: String,
+    pub password: String
+}

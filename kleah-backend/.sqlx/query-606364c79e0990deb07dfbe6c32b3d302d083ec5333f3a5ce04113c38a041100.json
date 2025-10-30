@@ -37,6 +37,11 @@
         "ordinal": 6,
         "name": "private_key",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "is_admin",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -45,6 +50,7 @@
       ]
     },
     "nullable": [
+      false,
       false,
       false,
       false,

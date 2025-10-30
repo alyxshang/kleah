@@ -8,10 +8,29 @@ Licensed under the FSL v1.
 /// database connections.
 use sqlx::Pool;
 
+/// Importing the 
+/// structure to get
+/// the current time.
+use chrono::Utc;
+
+/// Importing the trait
+/// to generate digests.
+use sha2::Digest;
+
+/// Importing the structure
+/// to generate a SHA-256 
+/// checksum.
+use sha2::Sha256;
+
 /// Importing this
 /// namespace to use
 /// a type alias.
 use sqlx::postgres;
+
+/// Importing this structure
+/// to assist with getting
+/// the current time.
+use chrono::DateTime;
 
 /// Importing the structure
 /// for generating an RSA
@@ -160,4 +179,21 @@ pub async fn create_connection(
         )
     };
     Ok(conn)
+}
+
+/// A function to generate a SHA-256 hash
+/// of the given string. The hash is returned
+/// as a string.
+pub fn hash_string(subject: &str) -> String {
+    let mut hasher: Sha256 = Sha256::new();
+    hasher.update(subject);
+    format!("{:X}", hasher.finalize())
+}
+
+/// A function that generates a string
+/// containing information on the 
+/// current time in the RFC2282 format.
+pub fn rfc2282() -> String {
+    let now: DateTime<Utc> = Utc::now();
+    now.to_rfc2822()
 }

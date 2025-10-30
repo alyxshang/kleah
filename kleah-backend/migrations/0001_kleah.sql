@@ -5,7 +5,8 @@ create table users(
     email_addr text not null,
     public_key text not null,
     description text not null,
-    private_key text not null
+    private_key text not null,
+    is_admin boolean not null
 );
 
 create table actors(
@@ -24,4 +25,9 @@ create table actors(
 
 create table instance_information(
     host text not null primary key
+);
+
+create table user_api_tokens(
+  username text not null,
+  token text not null primary key
 );
