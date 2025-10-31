@@ -7,7 +7,7 @@
 This repository contains the source code for an ActivityyPub-powered
 decentralized micro-blogging platform.
 
-## STATUS :wanring:
+## STATUS :warning:
 
 ***This project is still heavily work in progress.***
 
