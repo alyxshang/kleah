@@ -16,6 +16,10 @@ use serde::Serialize;
 /// data structures.
 use serde::Deserialize;
 
+/// An enumeration for JSON
+/// strings received to model
+/// the types of users that can
+/// exist on a Kleah instance.
 #[derive(Serialize, Deserialize)]
 pub enum KleahUserType{
     Bot,
@@ -33,7 +37,8 @@ pub struct UserCreatePayload{
     pub username: String,
     pub email_addr: String,
     pub description: String,
-    pub user_type: KleahUserType
+    pub user_type: KleahUserType,
+    pub invite_code: Option<String>,
 }
 
 /// Declaring a data structure
@@ -69,4 +74,25 @@ pub struct SecureUserChangePayload{
 pub struct CreateTokenPayload{
     pub username: String,
     pub password: String
+}
+
+/// Declaring a data structure
+/// that models data in a JSON 
+/// string received for creating
+/// a new invite code.
+#[derive(Serialize, Deserialize)]
+pub struct InviteCreatePayload{
+    pub api_token: String,
+    pub code: String
+}
+
+/// Declaring a data structure
+/// that models data in a JSON 
+/// string received for editing
+/// whether a Kleah instance uses
+/// invite codes or not.
+#[derive(Serialize, Deserialize)]
+pub struct EditInviteSystemPayload{
+    pub api_token: String,
+    pub uses_invites: bool
 }

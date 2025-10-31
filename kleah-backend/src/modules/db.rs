@@ -62,6 +62,11 @@ use super::models::KleahUser;
 /// database.
 use super::models::KleahActor;
 
+/// Importing the data structure
+/// modelling data about an invite code
+/// in the database.
+use super::models::InviteCode;
+
 /// Importing the function to
 /// generate a SHA-256 hash
 /// as a string of the given
@@ -258,7 +263,6 @@ pub async fn get_actor_by_id(
         )
     };
     Ok(object)
-
 }
 
 /// A function that attempts to retrieve a record
@@ -360,8 +364,8 @@ pub async fn get_instance_info(
 /// This function attempts to create a new API token
 /// for a user and store it in the database. If the 
 /// operation is successful, an instance of the 
-/// `UserAPIToken` is returned. If the operation fails,
-/// an error is returned.
+/// `UserAPIToken` structure is returned. If 
+/// the operation fails, an error is returned.
 pub async fn create_api_token(
     username: &str,
     pool: &Pool<Postgres>
@@ -750,4 +754,130 @@ pub async fn destroy_token(
             KleahErr::new("User and token owner do not match.")
         )
     }
+}
+
+/// This function attempts to create a new invite code
+/// in the database. If the operation is successful, 
+/// an instance of the `InviteCode` structure is returned. 
+/// If the operation fails, an error is returned.
+pub async fn create_invite_code(
+    code: &str,
+    pool: &Pool<Postgres>
+) -> Result<InviteCode, KleahErr>{
+    let obj: InviteCode = InviteCode{
+        code: code.to_string()
+    };
+    let _insert_op = match query!(
+        "INSERT INTO invite_codes (code) VALUES ($1)",
+        obj.code
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_feedback) => {},
+        Err(e) => return Err::<InviteCode, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let fetched: InviteCode = match get_code_by_code(
+        &obj.code,
+        pool
+    ).await {
+        Ok(fetched) => fetched,
+        Err(e) => return Err::<InviteCode, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(fetched)
+}
+
+/// A function that attempts to retrieve a record
+/// about a an invite code given the code itself.
+/// If the operation is successful, an instance of 
+/// the `InviteCode` structure is returned. If 
+/// the operation fails, an error is returned.
+pub async fn get_code_by_code(
+    code: &str,
+    pool: &Pool<Postgres>
+) -> Result<InviteCode, KleahErr>{
+    let object: InviteCode = match query_as!(
+        InviteCode,
+        "SELECT * FROM invite_codes WHERE code = $1",
+        code
+    )
+        .fetch_one(pool)
+        .await 
+    {
+        Ok(object) => object,
+        Err(e) => return Err::<InviteCode, KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(object)
+}
+
+/// A function that attempts to delete
+/// a record for an invite code. If the
+/// operation fails, an error is returned.
+/// If the operation is successful, nothing
+/// is returned.
+pub async fn destroy_invite_code(
+    code: &str,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let fetched: InviteCode = match get_code_by_code(
+        &code,
+        pool
+    ).await {
+        Ok(fetched) => fetched,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let del_op: () = match query!(
+        "DELETE FROM invite_codes WHERE code = $1",
+        fetched.code,
+    )
+        .execute(pool)
+        .await 
+    {
+        Ok(_f) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(del_op)
+}
+
+/// Attempts to update the column of the instance 
+/// record in the database about whether an instance 
+/// uses invite codes or not. If the operation is 
+/// successful, nothing is returned. If the operation 
+/// fails, an error is returned.
+pub async fn edit_invite_system(
+    uses_invites: &bool,
+    pool: &Pool<Postgres>
+) -> Result<(), KleahErr>{
+    let instance: InstanceInformation = match get_instance_info(
+        pool
+    ).await {
+        Ok(instance) => instance,
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    let update_op: () = match query!(
+        "UPDATE instance_information SET uses_invites = $1 WHERE host = $2",
+        *uses_invites,
+        instance.host
+    )
+        .execute(pool)
+        .await
+    {
+        Ok(_f) => {},
+        Err(e) => return Err::<(), KleahErr>(
+            KleahErr::new(&e.to_string())
+        )
+    };
+    Ok(update_op)
 }

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE instance_information SET uses_invites = $1 WHERE host = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "494fd4ddbfb5201fdf432adabdb92a3d48ac72c89b09b779842d94704d41e814"
+}

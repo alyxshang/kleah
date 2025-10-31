@@ -40,3 +40,12 @@ pub struct CreateTokenResponse{
 pub struct StatusResponse{
     pub status: bool
 }
+
+/// A structure to contain data
+/// about a created invite code 
+/// and serialize this data into 
+/// a JSON string.
+#[derive(Serialize)]
+pub struct InviteCreateResponse{
+    pub code: String
+}

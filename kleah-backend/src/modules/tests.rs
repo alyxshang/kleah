@@ -215,7 +215,8 @@ pub async fn test_api_services(){
         username: "robbymad".to_string(),
         email_addr: "me@example.com".to_string(),
         description: "Son of Mad Robert.".to_string(),
-        user_type: KleahUserType::Person
+        user_type: KleahUserType::Person,
+        invite_code: None
     };
     let app = test::init_service(
         App::new()

@@ -58,10 +58,9 @@ use openssl::pkey::Private;
 /// PostgreSQL database.
 use sqlx::postgres::Postgres;
 
-
 /// A function to check whether
 /// the supplied string is a valid
-/// username. A boolean relfecting
+/// username. A boolean reflecting
 /// this is returned.
 pub fn check_username(
     sub: &str
@@ -90,7 +89,7 @@ pub fn check_username(
 
 /// A function to check whether
 /// the supplied string is a valid
-/// password. A boolean relfecting
+/// password. A boolean reflecting
 /// this is returned.
 pub fn check_password(
     sub: &str
@@ -104,7 +103,7 @@ pub fn check_password(
 
 /// A function to check whether
 /// the supplied string is a valid
-/// email address. A boolean relfecting
+/// email address. A boolean reflecting
 /// this is returned.
 pub fn check_email(
     sub: &str
@@ -196,4 +195,33 @@ pub fn hash_string(subject: &str) -> String {
 pub fn rfc2282() -> String {
     let now: DateTime<Utc> = Utc::now();
     now.to_rfc2822()
+}
+
+/// A function to check whether
+/// the supplied string is a valid
+/// invite code or not. A boolean 
+/// reflecting this is returned.
+pub fn validate_invite(
+    code: &str
+) -> bool {
+    let alphabet: Vec<char> = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+        .to_string()
+        .chars()
+        .collect::<Vec<char>>();
+    let code_chars: Vec<char> = code
+        .to_string()
+        .chars()
+        .collect::<Vec<char>>();
+    let mut result: bool = true;
+    if code_chars.len() >= 8 && code_chars.len() <= 16{
+        for code_char in code_chars{
+            if !alphabet.contains(&code_char){
+                result = false;
+            }
+        }
+    }
+    else {
+        result = false;
+    }
+    result
 }
