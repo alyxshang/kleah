@@ -51,7 +51,8 @@ pub struct KleahActor{
 /// in the database.
 #[derive(FromRow)]
 pub struct InstanceInformation{
-    pub host: String
+    pub host: String,
+    pub uses_invites: bool
 }
 
 /// A structure to model
@@ -62,4 +63,17 @@ pub struct InstanceInformation{
 pub struct UserAPIToken{
     pub username: String,
     pub token: String
+}
+
+#[derive(FromRow)]
+pub struct InviteCode{
+    pub code: String,
+}
+
+#[derive(FromRow)]
+pub struct UserFile{
+    pub file_id: String,
+    pub owner: String,
+    pub is_public: bool,
+    pub file_path: String
 }

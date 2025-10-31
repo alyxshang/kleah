@@ -24,10 +24,22 @@ create table actors(
 );
 
 create table instance_information(
+    uses_invites boolean not null,
     host text not null primary key
 );
 
 create table user_api_tokens(
   username text not null,
   token text not null primary key
+);
+
+create table invite_codes(
+  code text not null primary key
+);
+
+create table user_files(
+    file_id text not null primary key,
+    owner text not null,
+    is_public text not null,
+    file_path text not null
 );

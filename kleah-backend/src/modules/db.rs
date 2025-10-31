@@ -296,13 +296,16 @@ pub async fn get_user_by_id(
 /// an error is returned.
 pub async fn create_instance_info(
     host: &str,
+    uses_invites: &bool,
     pool: &Pool<Postgres>
 ) -> Result<InstanceInformation, KleahErr>{
     let obj: InstanceInformation = InstanceInformation{ 
-        host: host.to_string() 
+        host: host.to_string(),
+        uses_invites: *uses_invites
     };
     let _insert_op = match query!(
-        "INSERT INTO instance_information (host) VALUES ($1)",
+        "INSERT INTO instance_information (uses_invites, host) VALUES ($1, $2)",
+        obj.uses_invites,
         obj.host
     )
         .execute(pool)

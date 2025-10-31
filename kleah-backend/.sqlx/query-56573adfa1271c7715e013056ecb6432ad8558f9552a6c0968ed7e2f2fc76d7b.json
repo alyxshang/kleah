@@ -5,6 +5,11 @@
     "columns": [
       {
         "ordinal": 0,
+        "name": "uses_invites",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
         "name": "host",
         "type_info": "Text"
       }
@@ -13,6 +18,7 @@
       "Left": []
     },
     "nullable": [
+      false,
       false
     ]
   },

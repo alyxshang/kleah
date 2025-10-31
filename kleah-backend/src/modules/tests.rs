@@ -150,7 +150,7 @@ pub async fn test_database_functions(){
         .expect("Failed to read environment variable.");
     let connection = create_connection(&db_url).await
         .expect("Could not create connection.");
-    let inst = create_instance_info("example.com", &connection).await
+    let inst = create_instance_info("example.com", &false, &connection).await
         .expect("Could not create instance information.");
     let inst_i = get_instance_info(&connection).await
         .expect("Could not fetch instance information.");
